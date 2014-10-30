@@ -1,0 +1,31 @@
+OMERO.webtest
+============
+
+OMERO.web app for various prototypes and examples.
+This was removed from the main OMERO.web in the 5.0.6 release of OMERO.
+
+
+Requirements
+============
+
+* OMERO 4.4.x or OMERO 5.x
+
+Installation
+============
+
+Clone or download and make sure that the /webtest/ folder
+is within a directory that is on your $PYTHONPATH.
+
+Add webtest to your installed web apps:
+
+	$ bin/omero config append omero.web.apps '"webtest"'
+
+NB: note that double quotes are wrapped by single quotes.
+Windows users will need to do
+
+    $ bin\omero config append omero.web.apps "\"webtest\""
+
+
+Restart your webserver and open your browser at:
+
+	<your server>/webtest/
