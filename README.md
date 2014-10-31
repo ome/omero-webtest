@@ -25,6 +25,11 @@ Windows users will need to do
 
     $ bin\omero config append omero.web.apps "\"webtest\""
 
+Optional: install example webclient plugins:
+
+    $ omero config append omero.web.ui.right_plugins '["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"]'
+    $ omero config append omero.web.ui.center_plugins '["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"]'
+
 
 Restart your webserver and open your browser at:
 
