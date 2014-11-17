@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import url, patterns
 
-from omeroweb.webtest import views
+from webtest import views
 
 
 urlpatterns = patterns('django.views.generic.simple',
