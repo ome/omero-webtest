@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.webclient.decorators import login_required, render_response
@@ -31,7 +31,7 @@ except: #pragma: nocover
 def dataset(request, datasetId, conn=None, **kwargs):
     """ 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb """
     ds = conn.getObject("Dataset", datasetId)     # before OMERO 4.3 this was conn.getDataset(datasetId)
-    return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
+    return render(request, 'webtest/dataset.html', {'dataset': ds})    # generate html from template
 
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
@@ -62,7 +62,7 @@ def index(request, conn=None, **kwargs):
         dataset = random.choice(some_datasets)
         attempts += 1
 
-    return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
+    return render(request, 'webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
 
 @login_required()
@@ -117,7 +117,7 @@ def channel_overlay_viewer(request, imageId, conn=None, **kwargs):
                     if key == "z": val = int(val) + default_z
                     channels[int(index)][key] = int(val)
 
-    return render_to_response('webtest/demo_viewers/channel_overlay_viewer.html', {
+    return render(request, 'webtest/demo_viewers/channel_overlay_viewer.html', {
         'image': image, 'channels':channels, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
 
@@ -277,7 +277,7 @@ def add_annotations (request, conn=None, **kwargs):
         updateService.saveObject(l)
         images.append(image)
         
-    return render_to_response('webtest/util/add_annotations.html', {'images':images, 'comment':comment})
+    return render(request, 'webtest/util/add_annotations.html', {'images':images, 'comment':comment})
     
 
 @login_required()
@@ -384,7 +384,7 @@ def split_view_figure (request, conn=None, **kwargs):
         c_strs.append( ",".join(mergedFlags) )
     
     template = kwargs.get('template', 'webtest/demo_viewers/split_view_figure.html')
-    return render_to_response(template, {'images':images, 'c_strs': c_strs,'imageIds':idList,
+    return render(request, template, {'images':images, 'c_strs': c_strs,'imageIds':idList,
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 
@@ -472,7 +472,7 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
     
     template = kwargs.get('template', 'webtest/webclient_plugins/dataset_split_view.html')
 
-    return render_to_response(template, {'dataset': dataset, 'images': images, 
+    return render(request, template, {'dataset': dataset, 'images': images, 
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 
@@ -484,7 +484,7 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
     """
     image = conn.getObject("Image", imageId)
     if image is None:
-        return render_to_response('webtest/demo_viewers/image_dimensions.html', {}) 
+        return render(request, 'webtest/demo_viewers/image_dimensions.html', {}) 
     
     mode = request.REQUEST.get('mode', None) and 'g' or 'c'
     dims = {'Z':image.getSizeZ(), 'C': image.getSizeC(), 'T': image.getSizeT()}
@@ -534,7 +534,7 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
         
     size = {"height": 125, "width": 125}
     
-    return render_to_response('webtest/demo_viewers/image_dimensions.html', {'image':image, 'grid': grid, 
+    return render(request, 'webtest/demo_viewers/image_dimensions.html', {'image':image, 'grid': grid, 
         "size": size, "mode":mode, 'xDim':xDim, 'xRange':xRange, 'yRange':yRange, 'yDim':yDim, 
         'xFrames':xFrames, 'yFrames':yFrames})
 
@@ -545,13 +545,13 @@ def image_rois (request, imageId, conn=None, **kwargs):
     roiService = conn.getRoiService()
     result = roiService.findByImage(long(imageId), None, conn.SERVICE_OPTS)
     roiIds = [r.getId().getValue() for r in result.rois]
-    return render_to_response('webtest/demo_viewers/image_rois.html', {'roiIds':roiIds})
+    return render(request, 'webtest/demo_viewers/image_rois.html', {'roiIds':roiIds})
 
 
 def webgateway_templates (request, base_template):
     """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
     template_name = 'webtest/webgateway/%s.html' % base_template
-    return render_to_response(template_name, {})
+    return render(request, template_name, {})
 
 @login_required()
 @render_response()
@@ -579,7 +579,7 @@ def stack_preview (request, imageId, conn=None, **kwargs):
     image_name = image.getName()
     sizeZ = image.getSizeZ()
     z_indexes = [0, int(sizeZ*0.25), int(sizeZ*0.5), int(sizeZ*0.75), sizeZ-1]
-    return render_to_response('webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})
+    return render(request, 'webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})
 
 @login_required()
 def render_performance (request, obj_type, id, conn=None, **kwargs):
@@ -623,4 +623,4 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
         imageIds = [i.getId() for i in dataset.listChildren()]
         context = {'imageIds':imageIds}
 
-    return render_to_response('webtest/demo_viewers/render_performance.html', context)
+    return render(request, 'webtest/demo_viewers/render_performance.html', context)
