@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
+from django.views import generic
+from django.core.urlresolvers import reverse
+
 from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.webclient.decorators import login_required, render_response
@@ -25,7 +28,6 @@ except: #pragma: nocover
         import Image
     except:
         logger.error('No Pillow installed, line plots and split channel will fail!')
-
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def dataset(request, datasetId, conn=None, **kwargs):
@@ -624,3 +626,15 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
         context = {'imageIds':imageIds}
 
     return render(request, 'webtest/demo_viewers/render_performance.html', context)
+
+
+class ExamplesView(generic.TemplateView):
+    """ Examples page view. """
+
+    image_id = None
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ExamplesView, self).get_context_data(**kwargs)
+        ctx['image_id'] = self.image_id
+        ctx['host_name'] = self.request.build_absolute_uri(reverse("index"))
+        return ctx

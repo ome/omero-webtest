@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf.urls import url, patterns
+from django.views.generic import TemplateView
 
 from webtest import views
 
 
 urlpatterns = patterns('django.views.generic.simple',
+
+    url(r'^examples/(?P<image_id>[0-9]+)/(?P<template>[a-z0-9_].*)', lambda request, image_id, template: views.ExamplesView.as_view(template_name=("webtest/examples/%s" % template), image_id=image_id)(request)),
 
     # index 'home page' of the webtest app
     url( r'^$', views.index, name='webtest_index' ),
