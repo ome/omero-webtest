@@ -34,3 +34,18 @@ Optional: install example webclient plugins:
 Restart your webserver and open your browser at:
 
 	<your server>/webtest/
+
+
+Examples
+========
+
+Existing examples are available on the following URLs:
+
+    https://HOST/webtest/examples/IMAGE_ID/embed_big_image.html
+    https://HOST/webtest/examples/IMAGE_ID/embed_viewer.html
+
+NB: note IMAGE_ID can be obtained from public images.
+
+New templates can be added to templates/webtest/examples. New template can benefit from dynamic variables: {{ host_name }} and {{ image_id }} passed through URL.
+
+Rendered template can be saved locally for further testing as a absolute uri is included.
