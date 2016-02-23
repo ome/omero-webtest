@@ -91,7 +91,8 @@ def channel_overlay_viewer(request, iid, conn=None, **kwargs):
 
     if image is not None:
         if image.getSizeC() == 1:
-            return HttpResponseRedirect(reverse("webgateway.views.full_viewer", args=(iid,)))
+            return HttpResponseRedirect(
+                reverse("webgateway.views.full_viewer", args=(iid,)))
 
     # try to work out which channels should be 'red',
     # 'green', 'blue' based on rendering settings
@@ -373,8 +374,8 @@ def split_view_figure(request, conn=None, **kwargs):
             # if we have channel info from a form, we know that
             # checkbox:None is unchecked (not absent)
             if request.REQUEST.get('cName%s' % i, None):
-                active = (None != request.REQUEST.get('cActive%s' % i, None))
-                merged = (None != request.REQUEST.get('cMerged%s' % i, None))
+                active = request.REQUEST.get('cActive%s' % i, None) is not None
+                merged = request.REQUEST.get('cMerged%s' % i, None) is not None
             else:
                 active = True
                 merged = True
@@ -490,7 +491,7 @@ def dataset_split_view(request, datasetId, conn=None, **kwargs):
             if request.REQUEST.get('cStart%s' % i, None):
                 active_left = (None is not request.REQUEST.get(
                                'cActiveLeft%s' % i, None))
-                active_right = (None != request.REQUEST.get(
+                active_right = (None is not request.REQUEST.get(
                                 'cActiveRight%s' % i, None))
             else:
                 active_left = True
