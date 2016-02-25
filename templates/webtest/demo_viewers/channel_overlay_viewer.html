@@ -221,16 +221,8 @@ $(document).ready(function() {
         <img id='viewer' src="" width="{{ image.width }}" height="{{ image.height }}"/>
     </div>
     
-    <div id="preview" style="float:left; width: 100px; height: 100px; overflow: hidden;">
-        <img id="lens" src="" style="width: 100px; height: 100px;" />
-    </div>
-    
     <div style="padding:10px; margin:10px; float:left">
-        <div style="float:right">
-                Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %
-        </div>
         Adjust the x-shift and y-shift of individual planes to align them. <br />
-        Draw a rectangle on the image to zoom that region.<br />
         Also possible to pick the Z, C, T and Image-ID to mix planes from different images.
         <hr />
         <!-- table of all the channels -->
@@ -293,6 +285,13 @@ $(document).ready(function() {
             </tr>
         </table>
         <hr />
+
+        Lens: draw a rectangle on the main image above to zoom that region.<br />
+        Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %<br>
+
+        <div id="preview" style="float:left; width: 100px; height: 100px; overflow: hidden;">
+            <img id="lens" src="" style="width: 100px; height: 100px;" />
+        </div>
         
     </div>
 
