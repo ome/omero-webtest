@@ -146,19 +146,19 @@ $(document).ready(function() {
         });
         
         $(".cSelect[name='red']").each(function() {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 var i=$(this).val();
                 query += '&red='+i;
             };
         });
         $(".cSelect[name='green']").each(function() {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 var i=$(this).val();
                 query += '&green='+i;
             };
         });
         $(".cSelect[name='blue']").each(function() {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 var i=$(this).val();
                 query += '&blue='+i;
             };
