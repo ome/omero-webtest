@@ -717,6 +717,14 @@ def render_performance(request, obj_type, id, conn=None, **kwargs):
                   context)
 
 
+@login_required()
+def histogram_viewer(request, iid, conn=None, **kwargs):
+
+    image = conn.getObject("Image", iid)
+    context = {'image': image}
+    return render(request, 'webtest/demo_viewers/histogram.html', context)
+
+
 class ExamplesView(generic.TemplateView):
     """ Examples page view. """
 

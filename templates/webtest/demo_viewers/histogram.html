@@ -1,0 +1,79 @@
+
+<html>
+<head>
+
+  {% include "webgateway/base/includes/script_src_jquery.html" %}
+  {% include "webgateway/base/includes/jquery-ui.html" %}
+  <script src="{% static 'webtest/js/histogram.js' %}"></script>
+  <script src="{% static 'webtest/3rdparty/d3.min.js' %}"></script>
+
+  <script>
+    IMAGE_ID = {{ image.id }};
+
+  </script>
+
+  <style type="text/css">
+
+  .ui-slider {
+
+    width: 512px;
+    height: 4px;
+    position: relative;
+    margin: 20px 0;
+  }
+
+  .ui-slider .ui-slider-handle {
+    cursor: default;
+    height: 1.2em;
+    position: absolute;
+    width: 1.2em;
+    z-index: 2;
+    border: solid black 1px;
+    background: white;
+    top: -5px;
+}
+
+.content {
+  float: left;
+}
+
+.series {
+    fill: none;
+}
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+  </style>
+</head>
+
+<body>
+    
+  <div class='content'>
+<!--     <h3>DNA Stain</h3>
+    <input data-type="minimum" type="range" min="0" max="255" value="0">
+    <input data-type="maximum" type="range" min="0" max="255" value="255"> -->
+    <canvas id="canvas">
+    </canvas>
+  </div>
+
+  <div style='float:left; margin: 20px'>
+    <div class="chart">
+      <!-- <div id="start"></div>
+      <div id="end"></div> -->
+    </div>
+
+    <div id="slider_blue" style="background: blue;"></div>
+    <div id="slider_green" style="background: green;"></div>
+    <div id="slider_red" style="background: red;"></div>
+
+    <input id="zSlider" type="range" min="0" max="{{ image.getSizeZ }}" value="0" step="1"/>
+    <span id="zIndex">0</span>
+
+</script>
+  </div>
+
+</body>
+</html>
