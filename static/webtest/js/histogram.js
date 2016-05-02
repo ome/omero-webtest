@@ -6,6 +6,7 @@ $(document).ready(function(){
     var canvas;
     var ctx;
     var svg;
+    var chart;
 
     $("#canvas").css({'width': width +'px', 'height': height +'px'});
 
@@ -44,37 +45,126 @@ $(document).ready(function(){
         }
 
         plotHistogram(hdata);
-
-        // var maxVals = [d3.max(hdata[0]),
-        //         d3.max(hdata[1]),
-        //         d3.max(hdata[2])];
-        // var yscale = d3.scale.linear()
-        //     .domain([0, d3.max(maxVals)])
-        //     .range([0, 300]);
-
-        // d3.select(".chart")
-        //   .selectAll("div")
-        //     .data(hdata[0])
-        //   .enter().append("div")
-        //     .style("height", function(d) { return yscale(d) + "px"; })
-        //     .style("left", function(d, i) { return (2 * i) + "px"; });
-
-        // d3.select(".chart")
-        //   .selectAll("div")
-        //     .data(hdata[1])
-        //   .enter().append("div")
-        //     .style("height", function(d) { return yscale(d) + "px"; })
-        //     .style("left", function(d, i) { return (2 * i) + "px"; })
-        //     .style("background-color", "green");
-
-        // d3.select(".chart")
-        //   .selectAll("div")
-        //     .data(hdata[2])
-        //   .enter().append("div")
-        //     .style("height", function(d) { return yscale(d) + "px"; })
-        //     .style("left", function(d, i) { return (2 * i) + "px"; })
-        //     .style("background-color", "blue");
+        // testPlot(hdata);
     };
+
+
+    // var margin = {top: 20, right: 20, bottom: 20, left: 40},
+    //     testWidth = 460 - margin.left - margin.right,
+    //     testHeight = 500 - margin.top - margin.bottom;
+    // var svg = d3.select("body").append("svg")
+    //     .attr("width", testWidth + margin.left + margin.right)
+    //     .attr("height", testHeight + margin.top + margin.bottom)
+    //   .append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // var x = d3.scale.linear()
+    //     .range([0, testWidth]);
+
+    // var y = d3.scale.linear()
+    //     .range([testHeight, 0]);
+
+    // var line = d3.svg.line()
+    //     .x(function(d, i) { return x(i); })
+    //     .y(function(d, i) { return y(d); });
+
+    // var path = svg.append("g")
+    //         .append("path")
+    //         .attr("class", "line");
+    //         // .attr("d", line);
+
+    // var testPlot = function(h) {
+    //     var n = 40,
+    //         random = d3.random.normal(0, 0.2),
+    //         data = d3.range(n).map(random);
+    //     // console.log(h);
+
+    //     // var data = [0,1,0,1,0,1,0,1,0,1,0,1];
+    //     console.log(data);
+
+    //     // var path = svg.append("g")
+    //     //     .append("path")
+    //     //     .datum(data)
+    //     //     .attr("class", "line")
+    //     //     .attr("d", line);
+    //     svg.selectAll(".line")
+    //         .datum(data)
+    //         .attr("d", line);
+    // };
+
+
+    var colours = {
+        red: '#ff0000',
+        green: '#00ff00',
+        blue: '#0000ff'
+    };
+        
+    // set up a colour variable
+    var color = d3.scale.category10();
+
+
+    // Set the dimensions of the canvas / graph
+    var margin = {
+        top: 30,
+        right: 0,
+        bottom: 30,
+        left: 0
+    };
+    var chartWidth = 512 - margin.left - margin.right;
+    var chartHeight = 300 - margin.top - margin.bottom;
+
+    // Set the ranges
+    var x = d3.time.scale().range([0, chartWidth]);
+    var y = d3.scale.linear().range([chartHeight, 0]);
+
+    // Define the axes
+    var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom").ticks(0);
+
+    var yAxis = d3.svg.axis().scale(y)
+        .orient("left").ticks(0);
+
+    // Define the line
+    // Note you plot the time / score pair from each key you created ealier 
+    var valueline = d3.svg.line()
+        .x(function(d) {
+            return x(d.time);
+        })
+        .y(function(d) {
+            return y(d.score);
+        });
+
+    // Adds the svg canvas
+    svg = d3.select(".chart")
+        .append("svg")
+        .attr("width", chartWidth + margin.left + margin.right)
+        .attr("height", chartHeight + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    // Add the X Axis
+    svg.append("g") // Add the X Axis
+    .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g") // Add the Y Axis
+    .attr("class", "y axis")
+        .call(yAxis);
+
+
+    // Add slider markers
+    var line = svg.selectAll("rect")
+    .data([0, 256]);
+
+    var lineEnter = line.enter().append("rect");
+    lineEnter.attr("y", 0);
+    lineEnter.attr("height", 300);
+    lineEnter.attr("width", 1);
+    lineEnter.attr("x", function(d, i) { return d * 2; });
+
 
     var plotHistogram = function(h) {
 
@@ -93,15 +183,6 @@ $(document).ready(function(){
             });
         }
 
-        var colours = {
-            red: '#ff0000',
-            green: '#00ff00',
-            blue: '#0000ff'
-        };
-        
-
-        // set up a colour variable
-        var color = d3.scale.category10();
 
         // map one colour each to x, y and z
         // keys grabs the key value or heading of each key value pair in the json
@@ -124,47 +205,6 @@ $(document).ready(function(){
             };
         });
 
-        
-        // Set the dimensions of the canvas / graph
-        var margin = {
-            top: 30,
-            right: 0,
-            bottom: 30,
-            left: 0
-        },
-            width = 512 - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom;
-
-        // Set the ranges
-        var x = d3.time.scale().range([0, width]);
-        var y = d3.scale.linear().range([height, 0]);
-
-        // Define the axes
-        var xAxis = d3.svg.axis().scale(x)
-            .orient("bottom").ticks(0);
-
-        var yAxis = d3.svg.axis().scale(y)
-            .orient("left").ticks(0);
-
-        // Define the line
-        // Note you plot the time / score pair from each key you created ealier 
-        var valueline = d3.svg.line()
-            .x(function(d) {
-                return x(d.time);
-            })
-            .y(function(d) {
-                return y(d.score);
-            });
-
-
-        // Adds the svg canvas
-        svg = d3.select(".chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
         // Scale the range of the data
         x.domain(d3.extent(data, function(d) {
             return d.time;
@@ -184,12 +224,12 @@ $(document).ready(function(){
             })
         ]);
         
+        svg.selectAll(".series").remove();
         // create a variable called chart and bind the date
         // for each series append a g element and class it as series for css styling
-        var chart = svg.selectAll(".series")
+        chart = svg.selectAll(".series")
             .data(series)
-            .enter().append("g")
-            .attr("class", "series");
+            .enter().append("g").attr("class", "series");       // <g class="series">
 
         // create the path for each series in the variable series i.e. x, y and z
         // pass each object called x, y nad z to the lne generator
@@ -201,29 +241,6 @@ $(document).ready(function(){
             .style("stroke", function(d) {
                 return colours[d.name];
             });
-
-        // Add the X Axis
-        svg.append("g") // Add the X Axis
-        .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
-
-        // Add the Y Axis
-        svg.append("g") // Add the Y Axis
-        .attr("class", "y axis")
-            .call(yAxis);
-
-
-        // Add slider markers
-        var line = svg.selectAll("rect")
-        .data([0, 256]);
-
-        var lineEnter = line.enter().append("rect");
-        lineEnter.attr("y", 0);
-        lineEnter.attr("height", 300);
-        lineEnter.attr("width", 1);
-        lineEnter.attr("x", function(d, i) { return d * 2; });
-
     };
 
     // Update the specified channel of the image
@@ -248,10 +265,7 @@ $(document).ready(function(){
 
         ctx.putImageData(pixels, 0, 0);
     };
-
-    // Kick off the loading of image
-    // img.src = "data/" + "telophase.jpeg";
-    img.src = "/webgateway/render_image/" + IMAGE_ID + "/0/0/";
+    
 
     var chartRange = function(values, color) {
         // $("#start").css('left', 2 * values[0] + 'px');
@@ -302,4 +316,94 @@ $(document).ready(function(){
             chartRange(ui.values, 'red');
         }
     });
+
+    var updateImage = function(z) {
+        img.src = "/webgateway/render_image/" + IMAGE_ID + "/" + z + "/0/";
+    };
+
+    updateImage(0);
+
+    $("#zSlider").on('input', function(){
+        $("#zIndex").html($(this).val());
+    }).on('change', function(){
+        updateImage($(this).val());
+    });
+
+
+
+
+
+// var n = 40,
+//     random = d3.random.normal(0, 0.2),
+//     data = d3.range(n).map(random);
+
+// var margin = {top: 20, right: 20, bottom: 20, left: 40},
+//     width = 960 - margin.left - margin.right,
+//     height = 500 - margin.top - margin.bottom;
+
+// var x = d3.scale.linear()
+//     .domain([0, n - 1])
+//     .range([0, width]);
+
+// var y = d3.scale.linear()
+//     .domain([-1, 1])
+//     .range([height, 0]);
+
+// var line = d3.svg.line()
+//     .x(function(d, i) { return x(i); })
+//     .y(function(d, i) { return y(d); });
+
+// var svg = d3.select("body").append("svg")
+//     .attr("width", width + margin.left + margin.right)
+//     .attr("height", height + margin.top + margin.bottom)
+//   .append("g")
+//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// svg.append("defs").append("clipPath")
+//     .attr("id", "clip")
+//   .append("rect")
+//     .attr("width", width)
+//     .attr("height", height);
+
+// svg.append("g")
+//     .attr("class", "x axis")
+//     .attr("transform", "translate(0," + y(0) + ")")
+//     .call(d3.svg.axis().scale(x).orient("bottom"));
+
+// svg.append("g")
+//     .attr("class", "y axis")
+//     .call(d3.svg.axis().scale(y).orient("left"));
+
+// var path = svg.append("g")
+//     // .attr("clip-path", "url(#clip)")
+//   .append("path")
+//     .datum(data)
+//     .attr("class", "line")
+//     .attr("d", line);
+
+// tick();
+
+// function tick() {
+
+  // push a new data point onto the back
+  // var newdata = d3.range(n).map(random);
+
+  // data.push(random());
+
+  // redraw the line, and slide it to the left
+  // path.attr("d", line);
+    //   .attr("transform", null)
+    // .transition()
+    //   .duration(500)
+    //   .ease("linear")
+    //   .attr("transform", "translate(" + x(-1) + ",0)")
+    //   .each("end", tick);
+
+  // pop the old data point off the front
+  // data.shift();
+
+// }
+
+// setInterval(tick, 500);
+
 });
