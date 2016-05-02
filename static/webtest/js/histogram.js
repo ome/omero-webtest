@@ -7,6 +7,10 @@ $(document).ready(function(){
     var ctx;
     var svg;
     var chart;
+    // We cache the histogram data (3 channels) and plot whichever
+    // is the active slider
+    var hdata = [];
+    var lastChIdx = 0;
 
     $("#canvas").css({'width': width +'px', 'height': height +'px'});
 
@@ -29,10 +33,8 @@ $(document).ready(function(){
 
     var histogram = function(pix) {
 
-        // var hpix = ctx.getImageData(0, 0, width, height);
-
-        var hdata = [],
-            cdata;
+        var cdata;
+        hdata = [];
         // go through 3 channels
         for (var c = 0; c < 3; c++){
             // go through all pixels of each channel (r,g,b or a)
@@ -44,7 +46,7 @@ $(document).ready(function(){
             hdata.push(cdata);
         }
 
-        plotHistogram(hdata);
+        plotHistogram(lastChIdx);
         // testPlot(hdata);
     };
 
@@ -77,9 +79,9 @@ $(document).ready(function(){
     lineEnter.attr("width", 1);
     lineEnter.attr("x", function(d, i) { return d * (testWidth/2); });
 
-    var testPlot = function(data) {
+    var testPlot = function(data, color) {
 
-        console.log("testPlot", data);
+        console.log("testPlot", data, color);
 
         var x = d3.scale.linear()
             .domain([0, n - 1])
@@ -125,7 +127,8 @@ $(document).ready(function(){
         //     .attr("d", line);
         svg.selectAll(".line")
             .datum(data)
-            .attr("d", line);
+            .attr("d", line)
+            .attr('stroke', color);
     };
 
 
@@ -210,28 +213,32 @@ $(document).ready(function(){
     // lineEnter.attr("x", function(d, i) { return d * 2; });
 
 
-    var plotHistogram = function(h) {
+    var plotHistogram = function(chIndex) {
 
+        lastChIdx = chIndex;
         // This code adapted from http://jsfiddle.net/t8VUn/
 
         // data is list of 3 lists of 256 values
 
         // transform
-        var data = [];
-        for (var i=0; i<h[0].length; i++) {
-            data.push({
-                time: i+1,
-                red: h[0][i],
-                green: h[1][i],
-                blue: h[2][i]
-            });
-        }
+        // var data = [];
+        // for (var i=0; i<h[0].length; i++) {
+        //     data.push({
+        //         time: i+1,
+        //         red: h[0][i],
+        //         green: h[1][i],
+        //         blue: h[2][i]
+        //     });
+        // }
 
-        var points = data.map(function(d){
-            return d['blue'];
-        });
+        // var data = hdata.map(function(i){
+        //     return d[chIndex]['blue'];
+        // });
+
+        var points = hdata[chIndex];
+        var colors = ['#0000ff', '#00ff00', '#ff0000'];
         // console.log(points);
-        testPlot(points, '#000000');
+        testPlot(points, colors[chIndex]);
 
     };
 
@@ -348,6 +355,9 @@ $(document).ready(function(){
         min: 0,
         max: 255,
         values: [0, 255],
+        start: function() {
+            plotHistogram(0);
+        },
         slide: function(event, ui) {
             render(2, ui.values[0], ui.values[1]);
             chartRange(ui.values, 'blue');
@@ -359,6 +369,9 @@ $(document).ready(function(){
         min: 0,
         max: 255,
         values: [0, 255],
+        start: function() {
+            plotHistogram(1);
+        },
         slide: function(event, ui) {
             render(1, ui.values[0], ui.values[1]);
             chartRange(ui.values, 'green');
@@ -370,6 +383,9 @@ $(document).ready(function(){
         min: 0,
         max: 255,
         values: [0, 255],
+        start: function() {
+            plotHistogram(2);
+        },
         slide: function(event, ui) {
             render(0, ui.values[0], ui.values[1]);
             chartRange(ui.values, 'red');
