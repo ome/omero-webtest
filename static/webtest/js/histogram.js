@@ -49,111 +49,23 @@ $(document).ready(function(){
     };
 
 
-    // var margin = {top: 20, right: 20, bottom: 20, left: 40},
-    //     testWidth = 460 - margin.left - margin.right,
-    //     testHeight = 500 - margin.top - margin.bottom;
-    // var svg = d3.select("body").append("svg")
-    //     .attr("width", testWidth + margin.left + margin.right)
-    //     .attr("height", testHeight + margin.top + margin.bottom)
-    //   .append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    // var x = d3.scale.linear()
-    //     .range([0, testWidth]);
-
-    // var y = d3.scale.linear()
-    //     .range([testHeight, 0]);
-
-    // var line = d3.svg.line()
-    //     .x(function(d, i) { return x(i); })
-    //     .y(function(d, i) { return y(d); });
-
-    // var path = svg.append("g")
-    //         .append("path")
-    //         .attr("class", "line");
-    //         // .attr("d", line);
-
-    // var testPlot = function(h) {
-    //     var n = 40,
-    //         random = d3.random.normal(0, 0.2),
-    //         data = d3.range(n).map(random);
-    //     // console.log(h);
-
-    //     // var data = [0,1,0,1,0,1,0,1,0,1,0,1];
-    //     console.log(data);
-
-    //     // var path = svg.append("g")
-    //     //     .append("path")
-    //     //     .datum(data)
-    //     //     .attr("class", "line")
-    //     //     .attr("d", line);
-    //     svg.selectAll(".line")
-    //         .datum(data)
-    //         .attr("d", line);
-    // };
-
-
-    var colours = {
-        red: '#ff0000',
-        green: '#00ff00',
-        blue: '#0000ff'
-    };
-        
-    // set up a colour variable
-    var color = d3.scale.category10();
-
-
-    // Set the dimensions of the canvas / graph
-    var margin = {
-        top: 30,
-        right: 0,
-        bottom: 30,
-        left: 0
-    };
-    var chartWidth = 512 - margin.left - margin.right;
-    var chartHeight = 300 - margin.top - margin.bottom;
-
-    // Set the ranges
-    var x = d3.time.scale().range([0, chartWidth]);
-    var y = d3.scale.linear().range([chartHeight, 0]);
-
-    // Define the axes
-    var xAxis = d3.svg.axis().scale(x)
-        .orient("bottom").ticks(0);
-
-    var yAxis = d3.svg.axis().scale(y)
-        .orient("left").ticks(0);
-
-    // Define the line
-    // Note you plot the time / score pair from each key you created ealier 
-    var valueline = d3.svg.line()
-        .x(function(d) {
-            return x(d.time);
-        })
-        .y(function(d) {
-            return y(d.score);
-        });
-
-    // Adds the svg canvas
-    svg = d3.select(".chart")
-        .append("svg")
-        .attr("width", chartWidth + margin.left + margin.right)
-        .attr("height", chartHeight + margin.top + margin.bottom)
-        .append("g")
+    var n = 256,
+        margin = {top: 20, right: 0, bottom: 20, left: 0},
+        testWidth = 512 - margin.left - margin.right,
+        testHeight = 250 - margin.top - margin.bottom;
+    svg = d3.select("body").append("svg")
+        .attr("width", testWidth + margin.left + margin.right)
+        .attr("height", testHeight + margin.top + margin.bottom)
+      .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    console.log("testWidth", testWidth);
 
-    // Add the X Axis
-    svg.append("g") // Add the X Axis
-    .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
 
-    // Add the Y Axis
-    svg.append("g") // Add the Y Axis
-    .attr("class", "y axis")
-        .call(yAxis);
-
+    var path = svg.append("g")
+            .append("path")
+            .attr("class", "line");
+            // .attr("d", line);
 
     // Add slider markers
     var line = svg.selectAll("rect")
@@ -163,7 +75,139 @@ $(document).ready(function(){
     lineEnter.attr("y", 0);
     lineEnter.attr("height", 300);
     lineEnter.attr("width", 1);
-    lineEnter.attr("x", function(d, i) { return d * 2; });
+    lineEnter.attr("x", function(d, i) { return d * (testWidth/2); });
+
+    var testPlot = function(data) {
+
+        console.log("testPlot", data);
+
+        var x = d3.scale.linear()
+            .domain([0, n - 1])
+            .range([0, testWidth]);
+
+        var y = d3.scale.linear()
+            .domain([
+                d3.min(data),
+                d3.max(data)
+            ])
+            .range([testHeight, 0]);
+
+
+         //     x.domain(d3.extent(data, function(d) {
+    //         return d.time;
+    //     }));
+        
+    //     // note the nested nature of this you need to dig an additional level
+    //     y.domain([
+    //         d3.min(series, function(c) {
+    //             return d3.min(c.values, function(v) {
+    //                 return v.score;
+    //             });
+    //         }),
+    //         d3.max(series, function(c) {
+    //             return d3.max(c.values, function(v) {
+    //                 return v.score;
+    //             });
+    //         })
+    //     ]);
+
+        var line = d3.svg.line()
+            .x(function(d, i) { console.log("x", x(i)); return x(i); })
+            .y(function(d, i) { console.log("y", y(d)); return y(d); });
+
+
+        // var data = [0,1,0,1,0,1,0,1,0,1,0,1];
+
+        // var path = svg.append("g")
+        //     .append("path")
+        //     .datum(data)
+        //     .attr("class", "line")
+        //     .attr("d", line);
+        svg.selectAll(".line")
+            .datum(data)
+            .attr("d", line);
+    };
+
+
+    var colours = {
+        red: '#ff0000',
+        green: '#00ff00',
+        blue: '#0000ff'
+    };
+        
+    // // set up a colour variable
+    // var color = d3.scale.category10();
+
+
+    // // Set the dimensions of the canvas / graph
+    // var margin = {
+    //     top: 30,
+    //     right: 0,
+    //     bottom: 30,
+    //     left: 0
+    // };
+    // var chartWidth = 512 - margin.left - margin.right;
+    // var chartHeight = 300 - margin.top - margin.bottom;
+
+    // // Set the ranges
+    // var x = d3.time.scale().range([0, chartWidth]);
+    // var y = d3.scale.linear().range([chartHeight, 0]);
+
+    // // Define the axes
+    // var xAxis = d3.svg.axis().scale(x)
+    //     .orient("bottom").ticks(0);
+
+    // var yAxis = d3.svg.axis().scale(y)
+    //     .orient("left").ticks(0);
+
+    // Define the line
+    // Note you plot the time / score pair from each key you created ealier 
+    // var valueline = d3.svg.line()
+    //     .x(function(d) {
+    //         return x(d.time);
+    //     })
+    //     .y(function(d) {
+    //         return y(d.score);
+    //     });
+    // var line = d3.svg.line()
+    //     .x(function(d, i) { return x(i); })
+    //     .y(function(d, i) { return y(d); });
+
+    // // Adds the svg canvas
+    // svg = d3.select(".chart")
+    //     .append("svg")
+    //     .attr("width", chartWidth + margin.left + margin.right)
+    //     .attr("height", chartHeight + margin.top + margin.bottom)
+    //     .append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    // // Add the X Axis
+    // svg.append("g") // Add the X Axis
+    // .attr("class", "x axis")
+    //     .attr("transform", "translate(0," + height + ")")
+    //     .call(xAxis);
+
+    // // Add the Y Axis
+    // svg.append("g") // Add the Y Axis
+    // .attr("class", "y axis")
+    //     .call(yAxis);
+
+    // // Add the line we will update each time
+    // var path = svg.append("g")
+    //     .append("path")
+    //     .attr("class", "line");
+
+
+    // // Add slider markers
+    // var line = svg.selectAll("rect")
+    // .data([0, 256]);
+
+    // var lineEnter = line.enter().append("rect");
+    // lineEnter.attr("y", 0);
+    // lineEnter.attr("height", 300);
+    // lineEnter.attr("width", 1);
+    // lineEnter.attr("x", function(d, i) { return d * 2; });
 
 
     var plotHistogram = function(h) {
@@ -183,65 +227,80 @@ $(document).ready(function(){
             });
         }
 
-
-        // map one colour each to x, y and z
-        // keys grabs the key value or heading of each key value pair in the json
-        // but not time
-        var keys = d3.keys(data[0]).filter(function(key) {
-            return key !== "time";
+        var points = data.map(function(d){
+            return d['blue'];
         });
-        color.domain(keys);
+        // console.log(points);
+        testPlot(points, '#000000');
 
-        // create a nested series for passing to the line generator
-        var series = color.domain().map(function(name) {
-            return {
-                name: name,
-                values: data.map(function(d) {
-                    return {
-                        time: d.time,
-                        score: +d[name]
-                    };
-                })
-            };
-        });
-
-        // Scale the range of the data
-        x.domain(d3.extent(data, function(d) {
-            return d.time;
-        }));
-        
-        // note the nested nature of this you need to dig an additional level
-        y.domain([
-            d3.min(series, function(c) {
-                return d3.min(c.values, function(v) {
-                    return v.score;
-                });
-            }),
-            d3.max(series, function(c) {
-                return d3.max(c.values, function(v) {
-                    return v.score;
-                });
-            })
-        ]);
-        
-        svg.selectAll(".series").remove();
-        // create a variable called chart and bind the date
-        // for each series append a g element and class it as series for css styling
-        chart = svg.selectAll(".series")
-            .data(series)
-            .enter().append("g").attr("class", "series");       // <g class="series">
-
-        // create the path for each series in the variable series i.e. x, y and z
-        // pass each object called x, y nad z to the lne generator
-        chart.append("path")
-            .attr("class", "line")
-            .attr("d", function(d) {
-                return valueline(d.values);
-            })
-            .style("stroke", function(d) {
-                return colours[d.name];
-            });
     };
+
+    // var plotLine = function(values, color) {
+
+    //     svg.selectAll(".line")
+    //         .datum(values)
+    //         .attr("d", line);
+    // };
+
+
+    //     // map one colour each to x, y and z
+    //     // keys grabs the key value or heading of each key value pair in the json
+    //     // but not time
+    //     var keys = d3.keys(data[0]).filter(function(key) {
+    //         return key !== "time";
+    //     });
+    //     color.domain(keys);
+
+    //     // create a nested series for passing to the line generator
+    //     var series = color.domain().map(function(name) {
+    //         return {
+    //             name: name,
+    //             values: data.map(function(d) {
+    //                 return {
+    //                     time: d.time,
+    //                     score: +d[name]
+    //                 };
+    //             })
+    //         };
+    //     });
+
+    //     // Scale the range of the data
+    //     x.domain(d3.extent(data, function(d) {
+    //         return d.time;
+    //     }));
+        
+    //     // note the nested nature of this you need to dig an additional level
+    //     y.domain([
+    //         d3.min(series, function(c) {
+    //             return d3.min(c.values, function(v) {
+    //                 return v.score;
+    //             });
+    //         }),
+    //         d3.max(series, function(c) {
+    //             return d3.max(c.values, function(v) {
+    //                 return v.score;
+    //             });
+    //         })
+    //     ]);
+        
+    //     svg.selectAll(".series").remove();
+    //     // create a variable called chart and bind the date
+    //     // for each series append a g element and class it as series for css styling
+    //     chart = svg.selectAll(".series")
+    //         .data(series)
+    //         .enter().append("g").attr("class", "series");       // <g class="series">
+
+    //     // create the path for each series in the variable series i.e. x, y and z
+    //     // pass each object called x, y nad z to the lne generator
+    //     chart.append("path")
+    //         .attr("class", "line")
+    //         .attr("d", function(d) {
+    //             return valueline(d.values);
+    //         })
+    //         .style("stroke", function(d) {
+    //             return colours[d.name];
+    //         });
+    // };
 
     // Update the specified channel of the image
     var render = function(channel, start, end) {
@@ -272,7 +331,7 @@ $(document).ready(function(){
         // $("#end").css('left', 2 * values[1] + 'px');
         var circle = svg.selectAll("rect")
         .data(values)
-        .attr("x", function(d, i) { return d * 2; })
+        .attr("x", function(d, i) { console.log(d, d*2); return d * (testWidth/n); })
         .attr('fill', color);
 
         // var circleEnter = circle.enter().append("rect");
