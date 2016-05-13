@@ -63,11 +63,12 @@ $(document).ready(function(){
     var model = new ViewerModel();
 
 
-    // Build sliders when they change...
-    model.on('change:channels', function(model, channels){
-        console.log("Channels changed");
+    // Build sliders when image loads....
+    model.on('change:id', function(model){
+        console.log("Image loaded: build channels...");
         console.log(arguments);
 
+        var channels = model.get('channels');
         buildChannels(channels);
     });
 
@@ -81,12 +82,9 @@ $(document).ready(function(){
         loadHistogramData(model);
     });
 
-    model.loadData(IMAGE_ID);
-
-
-
     var loadHistogramData = function(model) {
 
+        console.log('loadHistogramData...');
         // we want 'full range' image (darkest to brightest pixels)
         // for the current Z/T plane
 
@@ -101,7 +99,7 @@ $(document).ready(function(){
 
         var src = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
                 '/?c=' + renderString + "&m=c";
-
+        console.log('src');
         // this will trigger loading of histogram data
         img.src = src;
     };
@@ -142,8 +140,19 @@ $(document).ready(function(){
                         plotHistogram(idx);
                     },
                     slide: function(event, ui) {
-                        renderString(idx, ui.values[0], ui.values[1]);
-                        chartRange(ui.values, '#' + ch.color);
+                        // renderString(idx, ui.values[0], ui.values[1]);
+
+                        // histogram has 256 columns, from min - max
+                        // need to scale start and end within this range
+                        var start = ui.values[0],
+                            end = ui.values[1],
+                            min = ch.window.min,
+                            max = ch.window.max;
+                        start = ((start - min)/(max - min)) * 256;
+                        end = ((end - min)/(max - min)) * 256;
+                        chartRange([start, end], '#' + ch.color);
+                        // update image viewer canvas (not currently working)
+                        // renderString(idx, ui.values[0], ui.values[1]);
                     }
                 });
         });
@@ -203,27 +212,27 @@ $(document).ready(function(){
 
 
     // Update the specified channel of the image
-    var renderString = function(channel, start, end) {
+    // var renderString = function(channel, start, end) {
 
-        // get the current pixel data...
-        pixels = ctx.getImageData(0, 0, width, height);
+    //     // get the current pixel data...
+    //     pixels = ctx.getImageData(0, 0, width, height);
 
-        var d;
-        // go through all pixels of the specified channel (r,g,b or a)
-        for (var i = channel, n = pixels.data.length; i < n; i+=4) {
-            d = raw.data[i];
-            if (d < start) {
-                d = 0;
-            } else if (d > end) {
-                d = 255;
-            } else {
-                d = ((d - start) / (end - start)) * 255;
-            }
-            pixels.data[i] = d;
-        }
+    //     var d;
+    //     // go through all pixels of the specified channel (r,g,b or a)
+    //     for (var i = channel, n = pixels.data.length; i < n; i+=4) {
+    //         d = raw.data[i];
+    //         if (d < start) {
+    //             d = 0;
+    //         } else if (d > end) {
+    //             d = 255;
+    //         } else {
+    //             d = ((d - start) / (end - start)) * 255;
+    //         }
+    //         pixels.data[i] = d;
+    //     }
 
-        ctx.putImageData(pixels, 0, 0);
-    };
+    //     ctx.putImageData(pixels, 0, 0);
+    // };
     
 
     var chartRange = function(values, color) {
@@ -234,19 +243,32 @@ $(document).ready(function(){
     };
 
 
-    var updateImage = function(z) {
-        var imgSrc = "/webgateway/render_image/" + IMAGE_ID + "/" + z + "/0/";
-        img.src = imgSrc;
+    model.on('change:theZ change:theT change:channels', function(model){
+        console.log("Z/T or channels changed");
 
+        var cStrings = [];
+        _.each(model.get('channels'), function(c, i){
+            cStrings.push(1+i + "|" + c.window.start + ":" + c.window.end + "$" + c.color);
+        });
+        var renderString = cStrings.join(","),
+            imageId = model.get('id'),
+            theZ = model.get('theZ'),
+            theT = model.get('theT');
+
+        var imgSrc = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
+                '/?c=' + renderString + "&m=c";
+
+        console.log('updateImage', imgSrc);
         $("#viewer").attr('src', imgSrc);
-    };
-
-    updateImage(0);
+    });
 
     $("#zSlider").on('input', function(){
         $("#zIndex").html($(this).val());
     }).on('change', function(){
-        updateImage($(this).val());
+        var theZ = $(this).val();
+        model.set('theZ', theZ);
     });
 
+    // start everything by loading image
+    model.loadData(IMAGE_ID);
 });
