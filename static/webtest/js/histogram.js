@@ -56,6 +56,20 @@ $(document).ready(function(){
                 data.theZ = data.rdefs.defaultZ;
                 this.set(data);
             }.bind(this));
+        },
+
+        setChannelWindow: function(idx, start, end) {
+            var oldChs = this.get('channels');
+            // Need to clone the list of channels...
+            var chs = [];
+            for (var i=0; i<oldChs.length; i++) {
+                chs.push($.extend(true, {}, oldChs[i]));
+            }
+            // ... then set new value ...
+            chs[idx].window.start = start;
+            chs[idx].window.end = end;
+            // ... so that we get the changed event triggering OK
+            this.set('channels', chs);
         }
     });
 
@@ -153,6 +167,10 @@ $(document).ready(function(){
                         chartRange([start, end], '#' + ch.color);
                         // update image viewer canvas (not currently working)
                         // renderString(idx, ui.values[0], ui.values[1]);
+                    },
+                    stop: function(event, ui) {
+                        console.log('stop', ui.values);
+                        model.setChannelWindow(idx, ui.values[0], ui.values[1]);
                     }
                 });
         });
