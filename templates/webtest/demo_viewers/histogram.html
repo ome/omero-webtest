@@ -4,6 +4,9 @@
 
   {% include "webgateway/base/includes/script_src_jquery.html" %}
   {% include "webgateway/base/includes/jquery-ui.html" %}
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
   <script src="{% static 'webtest/js/histogram.js' %}"></script>
   <script src="{% static 'webtest/3rdparty/d3.min.js' %}"></script>
 
@@ -74,8 +77,10 @@ svg {
 <!--     <h3>DNA Stain</h3>
     <input data-type="minimum" type="range" min="0" max="255" value="0">
     <input data-type="maximum" type="range" min="0" max="255" value="255"> -->
-    <canvas id="canvas">
+    <canvas id="canvas" style="display: none">
     </canvas>
+    <img id="viewer" />
+
   </div>
 
   <div style='float:left; margin: 20px'>
@@ -84,9 +89,10 @@ svg {
       <div id="end"></div> -->
     </div>
 
-    <div id="slider_blue" style="background: blue;"></div>
+    <div id="sliders"></div>
+   <!--  <div id="slider_blue" style="background: blue;"></div>
     <div id="slider_green" style="background: green;"></div>
-    <div id="slider_red" style="background: red;"></div>
+    <div id="slider_red" style="background: red;"></div> -->
 
     <input id="zSlider" type="range" min="0" max="{{ image.getSizeZ }}" value="0" step="1"/>
     <span id="zIndex">0</span>

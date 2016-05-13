@@ -45,6 +45,68 @@ $(document).ready(function(){
 
 
 
+    var ViewerModel = Backbone.Model.extend({
+
+        loadData: function(imgId) {
+            $.getJSON("/webgateway/imgData/" + imgId + "/", function(data){
+                console.log(data);
+                console.log(this);
+
+                data.theT = data.rdefs.defaultT;
+                data.theZ = data.rdefs.defaultZ;
+                this.set(data);
+            }.bind(this));
+        }
+    });
+
+
+    var model = new ViewerModel();
+
+
+    // Build sliders when they change...
+    model.on('change:channels', function(model, channels){
+        console.log("Channels changed");
+        console.log(arguments);
+
+        buildChannels(channels);
+    });
+
+
+    // load histogram data when new plane chosen
+    model.on('change:theZ change:theT', function(model){
+        console.log("Z/T changed");
+        console.log(arguments);
+
+
+        loadHistogramData(model);
+    });
+
+    model.loadData(IMAGE_ID);
+
+
+
+    var loadHistogramData = function(model) {
+
+        // we want 'full range' image (darkest to brightest pixels)
+        // for the current Z/T plane
+
+        var cStrings = [];
+        _.each(model.get('channels'), function(c, i){
+            cStrings.push(1+i + "|" + c.window.min + ":" + c.window.max + "$" + c.color);
+        });
+        var renderString = cStrings.join(","),
+            imageId = model.get('id'),
+            theZ = model.get('theZ'),
+            theT = model.get('theT');
+
+        var src = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
+                '/?c=' + renderString + "&m=c";
+
+        // this will trigger loading of histogram data
+        img.src = src;
+    };
+
+
     // When we have the Image data, use it to populate the canvas
     img.onload = function() {
         canvas = document.getElementById("canvas");
@@ -61,6 +123,30 @@ $(document).ready(function(){
 
         // plot current channel
         plotHistogram(lastChIdx);
+    };
+
+
+    var buildChannels = function(channels) {
+
+        $('#sliders').empty();
+
+        channels.forEach(function(ch, idx){
+            $("<div style='background: #" + ch.color + "'></div>")
+                .appendTo('#sliders')
+                .slider({
+                    range: true,
+                    min: ch.window.min,
+                    max: ch.window.max,
+                    values: [ch.window.start, ch.window.end],
+                    start: function() {
+                        plotHistogram(idx);
+                    },
+                    slide: function(event, ui) {
+                        renderString(idx, ui.values[0], ui.values[1]);
+                        chartRange(ui.values, '#' + ch.color);
+                    }
+                });
+        });
     };
 
 
@@ -106,8 +192,8 @@ $(document).ready(function(){
             .range([testHeight, 0]);
 
         var line = d3.svg.line()
-            .x(function(d, i) { console.log("x", x(i)); return x(i); })
-            .y(function(d, i) { console.log("y", y(d)); return y(d); });
+            .x(function(d, i) { return x(i); })
+            .y(function(d, i) { return y(d); });
 
         svg.selectAll(".line")
             .datum(data)
@@ -117,7 +203,7 @@ $(document).ready(function(){
 
 
     // Update the specified channel of the image
-    var render = function(channel, start, end) {
+    var renderString = function(channel, start, end) {
 
         // get the current pixel data...
         pixels = ctx.getImageData(0, 0, width, height);
@@ -143,56 +229,16 @@ $(document).ready(function(){
     var chartRange = function(values, color) {
         var circle = svg.selectAll("rect")
         .data(values)
-        .attr("x", function(d, i) { console.log(d, d*2); return d * (testWidth/n); })
+        .attr("x", function(d, i) { return d * (testWidth/n); })
         .attr('fill', color);
     };
 
 
-    // Set up sliders to render specified channel when they slide
-    $("#slider_blue").slider({
-        range: true,
-        min: 0,
-        max: 255,
-        values: [0, 255],
-        start: function() {
-            plotHistogram(0);
-        },
-        slide: function(event, ui) {
-            render(2, ui.values[0], ui.values[1]);
-            chartRange(ui.values, 'blue');
-        }
-    });
-
-    $("#slider_green").slider({
-        range: true,
-        min: 0,
-        max: 255,
-        values: [0, 255],
-        start: function() {
-            plotHistogram(1);
-        },
-        slide: function(event, ui) {
-            render(1, ui.values[0], ui.values[1]);
-            chartRange(ui.values, 'green');
-        }
-    });
-
-    $("#slider_red").slider({
-        range: true,
-        min: 0,
-        max: 255,
-        values: [0, 255],
-        start: function() {
-            plotHistogram(2);
-        },
-        slide: function(event, ui) {
-            render(0, ui.values[0], ui.values[1]);
-            chartRange(ui.values, 'red');
-        }
-    });
-
     var updateImage = function(z) {
-        img.src = "/webgateway/render_image/" + IMAGE_ID + "/" + z + "/0/";
+        var imgSrc = "/webgateway/render_image/" + IMAGE_ID + "/" + z + "/0/";
+        img.src = imgSrc;
+
+        $("#viewer").attr('src', imgSrc);
     };
 
     updateImage(0);
