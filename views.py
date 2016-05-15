@@ -6,6 +6,7 @@ from django.views import generic
 from django.core.urlresolvers import reverse
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.http import HttpJsonResponse
 
 from omeroweb.webclient.decorators import login_required, render_response
 
@@ -723,6 +724,31 @@ def histogram_viewer(request, iid, conn=None, **kwargs):
     image = conn.getObject("Image", iid)
     context = {'image': image}
     return render(request, 'webtest/demo_viewers/histogram.html', context)
+
+
+@login_required()
+def histogram_data(request, iid, theC, conn=None, **kwargs):
+
+    image = conn.getObject("Image", iid)
+
+    theZ = request.REQUEST.get('theZ', 0)
+    theT = request.REQUEST.get('theT', 0)
+    theC = int(theC)
+
+    ch = image.getChannels()[theC]
+    wMin = ch.getWindowMin()
+    wMax = ch.getWindowMax()
+    print wMin, wMax
+    image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+    pilImg = image.renderImage(theZ, theT)
+    # pilImg.show()
+
+    rgbHistogram = pilImg.histogram()
+    hsize = len(rgbHistogram) / 3
+    # histogram = [rgbHistogram[i] for i in range((hsize * theC) + 0, (hsize * (theC + 1)) + 0)]
+    histogram = rgbHistogram[0:hsize]
+
+    return HttpJsonResponse(histogram)
 
 
 class ExamplesView(generic.TemplateView):

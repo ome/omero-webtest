@@ -114,6 +114,70 @@ var ChannelSliders = function(model) {
 };
 
 
+var JsonHistogram = function(model) {
+
+    var graphWidth = 512,
+        graphHeight = 150;
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", graphWidth)
+        .attr("height", graphHeight)
+      .append("g");
+        // .attr("transform", "translate(0,0)");
+
+    var path = svg.append("g")
+            .append("path")
+            .attr("class", "line");
+
+
+    // var setupHistogram = function(colums) {
+
+    // } 
+    var plotJson = function(data, color) {
+
+        // cache this for use by chartRange
+        colCount = data.length;
+
+        var x = d3.scale.linear()
+            .domain([0, data.length - 1])
+            .range([0, graphWidth]);
+
+        var y = d3.scale.linear()
+            .domain([
+                d3.min(data),
+                d3.max(data)
+            ])
+            .range([graphHeight, 0]);
+
+        var line = d3.svg.line()
+            .x(function(d, i) { return x(i); })
+            .y(function(d, i) { return y(d); });
+
+        svg.selectAll(".line")
+            .datum(data)
+            .attr("d", line)
+            .attr('stroke', 'black');
+    };
+
+
+    model.on('change:theZ change:theT change:selectedChannelIdx', function(model){
+        console.log("Load JSON histogram");
+
+        var iid = model.get('id'),
+            theZ = model.get('theZ'),
+            theT = model.get('theT'),
+            theC = model.get('selectedChannelIdx');
+        var url = '/webtest/histogram_data/' + iid + "/channel/" + theC + "/";
+        url += '?theT=' + theT + '&theZ=' + theZ;
+        // loadHistogramData(model);
+        $.getJSON(url, function(data){
+            plotJson(data);
+        });
+    });
+
+};
+
+
 var Histogram = function(model) {
 
     var width = 512;
@@ -130,13 +194,15 @@ var Histogram = function(model) {
     // $("#canvas").css({'width': width +'px', 'height': height +'px'});
     var img = new Image();
 
-    var n = 256,
+    var colCount,
+        svgWidth = 512,
+        svgHeight = 150,
         margin = {top: 20, right: 0, bottom: 20, left: 0},
-        testWidth = 512 - margin.left - margin.right,
-        testHeight = 250 - margin.top - margin.bottom;
+        plotWidth = svgWidth - margin.left - margin.right,
+        plotHeight = svgHeight - margin.top - margin.bottom;
     svg = d3.select("body").append("svg")
-        .attr("width", testWidth + margin.left + margin.right)
-        .attr("height", testHeight + margin.top + margin.bottom)
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -148,25 +214,20 @@ var Histogram = function(model) {
 
     // Add slider markers
     var line = svg.selectAll("rect")
-    .data([0, 256]);
+    .data([0, 0]);
 
     var lineEnter = line.enter().append("rect");
     lineEnter.attr("y", 0);
     lineEnter.attr("height", 300);
     lineEnter.attr("width", 1);
-    lineEnter.attr("x", function(d, i) { return d * (testWidth/2); });
+    lineEnter.attr("x", function(d, i) { return d * (plotWidth/2); });
 
     // load histogram data when new plane chosen
     model.on('change:theZ change:theT', function(model){
-        console.log("Z/T changed");
-        console.log(arguments);
-
         loadHistogramData(model);
     });
 
-    model.on('change:selectedChannelIdx', function(event, idx, model){
-
-        console.log('change:selectedChannelIdx', arguments);
+    model.on('change:selectedChannelIdx', function(model, idx, event){
         plotHistogram(idx);
     });
 
@@ -190,7 +251,6 @@ var Histogram = function(model) {
 
     var loadHistogramData = function(model) {
 
-        console.log('loadHistogramData...');
         // we want 'full range' image (darkest to brightest pixels)
         // for the current Z/T plane
         histogramStart = new Date();
@@ -264,16 +324,19 @@ var Histogram = function(model) {
 
     var plotLine = function(data, color) {
 
+        // cache this for use by chartRange
+        colCount = data.length;
+
         var x = d3.scale.linear()
-            .domain([0, n - 1])
-            .range([0, testWidth]);
+            .domain([0, data.length - 1])
+            .range([0, plotWidth]);
 
         var y = d3.scale.linear()
             .domain([
                 d3.min(data),
                 d3.max(data)
             ])
-            .range([testHeight, 0]);
+            .range([plotHeight, 0]);
 
         var line = d3.svg.line()
             .x(function(d, i) { return x(i); })
@@ -288,7 +351,7 @@ var Histogram = function(model) {
     var chartRange = function(values, color) {
         var circle = svg.selectAll("rect")
         .data(values)
-        .attr("x", function(d, i) { return d * (testWidth/n); })
+        .attr("x", function(d, i) { return d * (plotWidth/colCount); })
         .attr('fill', color);
     };
 };
@@ -303,6 +366,8 @@ $(document).ready(function(){
     new Histogram(model);
     new Zslider(model);
     new ImageViewer(model);
+
+    new JsonHistogram(model);
 
     // start everything by loading image
     model.loadData(IMAGE_ID);
