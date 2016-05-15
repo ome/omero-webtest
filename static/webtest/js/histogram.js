@@ -127,6 +127,7 @@ var Histogram = function(model) {
     var hdata = [];
     var lastChIdx = 0;
     // img not displayed
+    // $("#canvas").css({'width': width +'px', 'height': height +'px'});
     var img = new Image();
 
     var n = 256,
@@ -205,7 +206,7 @@ var Histogram = function(model) {
 
         var src = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
                 '/?c=' + renderString + "&m=c";
-        console.log('src');
+        console.log('src', src);
         // this will trigger loading of histogram data
         img.src = src;
     };
@@ -214,8 +215,8 @@ var Histogram = function(model) {
     // When we have the Image data, use it to populate the canvas
     img.onload = function() {
         canvas = document.getElementById("canvas");
-        // canvas.width = width;
-        // canvas.height = height;
+        canvas.width = width;
+        canvas.height = height;
 
         ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
