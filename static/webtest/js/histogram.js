@@ -137,6 +137,13 @@ var JsonHistogram = function(model) {
         .attr("height", 300)
         .attr("width", 1)
         .attr("x", function(d, i) { return d * (graphWidth/2); });
+    var t = svg.selectAll("text")
+        .data([0, 0])
+        .enter().append("text")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "20px")
+        .attr("y", 20)
+        .attr("fill", "black");
 
 
     var plotJson = function(data, color) {
@@ -201,13 +208,18 @@ var JsonHistogram = function(model) {
             start = values[0];
             end = values[1];
         }
-        start = ((start - min)/(max - min)) * 256;
-        end = ((end - min)/(max - min)) * 256;
+        var s = ((start - min)/(max - min)) * 256;
+        var e = ((end - min)/(max - min)) * 256;
 
         svg.selectAll("rect")
-        .data([start, end])
+        .data([s, e])
         .attr("x", function(d, i) { return d * (graphWidth/colCount); })
         .attr('fill', color);
+
+        svg.selectAll("text")
+            .data([[start, s], [end, e]])
+            .text(function(d) { return "" + d[0]; })
+            .attr('x', function(d) { return (d[1] * (graphWidth/colCount)) + 3; });
     };
 
 };
@@ -349,8 +361,12 @@ var Histogram = function(model) {
     var plotHistogram = function(chIndex) {
 
         lastChIdx = chIndex;
-
-        var points = hdata[chIndex];
+        var points;
+        if (chIndex >= hdata.length) {
+            points = [0];
+        } else {
+            points = hdata[chIndex];
+        }
         var colors = ['#0000ff', '#00ff00', '#ff0000'];
 
         plotLine(points, colors[chIndex]);
