@@ -5,10 +5,16 @@
 // ------------------------------------------------------
 var Zslider = function(model) {
     $("#zSlider").on('input', function(){
-        $("#zIndex").html($(this).val());
+        $("#zIndex").html('Z: ' + $(this).val());
     }).on('change', function(){
         var theZ = $(this).val();
         model.set('theZ', theZ);
+    });
+
+    model.on('change:theZ', function(){
+        var theZ = model.get('theZ');
+        $("#zSlider").val(theZ);
+        $("#zIndex").html('Z: ' + theZ);
     });
 };
 
@@ -16,7 +22,6 @@ var Zslider = function(model) {
 var ImageViewer = function(model) {
 
     model.on('change:theZ change:theT change:channels', function(model){
-        console.log("Z/T or channels changed");
 
         var cStrings = [];
         _.each(model.get('channels'), function(c, i){
@@ -30,7 +35,6 @@ var ImageViewer = function(model) {
         var imgSrc = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
                 '/?c=' + renderString + "&m=c";
 
-        console.log('updateImage', imgSrc);
         $("#viewer").attr('src', imgSrc);
     });
 };
@@ -41,13 +45,13 @@ var ImageViewer = function(model) {
 var ViewerModel = Backbone.Model.extend({
 
     defaults: {
-        selectedChannelIdx: 0
+        selectedChannelIdx: 0,
+        theZ: 0,
+        theT: 0,
     },
 
     loadData: function(imgId) {
         $.getJSON("/webgateway/imgData/" + imgId + "/", function(data){
-            console.log(data);
-            console.log(this);
 
             data.theT = data.rdefs.defaultT;
             data.theZ = data.rdefs.defaultZ;
@@ -75,8 +79,6 @@ var ChannelSliders = function(model) {
 
         // Build sliders when image loads....
     model.on('change:id', function(model){
-        console.log("Image loaded: build channels...");
-        console.log(arguments);
 
         var channels = model.get('channels');
         buildChannels(channels);
@@ -105,7 +107,6 @@ var ChannelSliders = function(model) {
                         model.trigger('slide', ui.values);
                     },
                     stop: function(event, ui) {
-                        console.log('stop', ui.values);
                         model.setChannelWindow(idx, ui.values[0], ui.values[1]);
                     }
                 });
@@ -125,9 +126,14 @@ var JsonHistogram = function(model) {
       .append("g");
         // .attr("transform", "translate(0,0)");
 
+    // line plot
     var path = svg.append("g")
-            .append("path")
-            .attr("class", "line");
+        .append("path")
+        .attr("class", "line");
+    // area fill
+    svg.append("path")
+        .attr("class", "area")
+        .attr('opacity', 0.5);
 
     // Add slider markers
     svg.selectAll("rect")
@@ -170,12 +176,23 @@ var JsonHistogram = function(model) {
             .datum(data)
             .attr("d", line)
             .attr('stroke', color);
+
+
+        // area to fill under line
+        var area = d3.svg.area()
+            .x(function(d, i) { return x(i); })
+            .y0(graphHeight)
+            .y1(function(d) { return y(d); });
+
+        svg.selectAll(".area")
+            .datum(data)
+            .attr("class", "area")
+            .attr("d", area)
+            .attr('fill', color);
     };
 
-
-    model.on('change:theZ change:theT change:selectedChannelIdx', function(model){
-        console.log("Load JSON histogram");
-
+    var loadAndPlotJson = function(){
+        console.log('Loading histogram data...');
         var iid = model.get('id'),
             theZ = model.get('theZ'),
             theT = model.get('theT'),
@@ -183,11 +200,19 @@ var JsonHistogram = function(model) {
             color = '#' + model.get('channels')[theC].color;
         var url = '/webtest/histogram_data/' + iid + "/channel/" + theC + "/";
         url += '?theT=' + theT + '&theZ=' + theZ;
+
+        var startJson = new Date();
         $.getJSON(url, function(data){
             plotJson(data, color);
             plotStartEnd();
+            console.log("Json Histogram took: ", new Date() - startJson);
         });
-    });
+    };
+
+    // We 'debounce' loading json so that it's not repeated very rapidly
+    loadAndPlotJson = _.debounce(loadAndPlotJson);
+
+    model.on('change:theZ change:theT change:selectedChannelIdx', loadAndPlotJson);
 
     // Plot the start/end positions during slide (not set on model)
     model.on('slide', function(args){
@@ -313,7 +338,6 @@ var Histogram = function(model) {
 
         var src = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
                 '/?c=' + renderString + "&m=c";
-        console.log('src', src);
         // this will trigger loading of histogram data
         img.src = src;
     };
