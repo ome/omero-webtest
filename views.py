@@ -17,6 +17,7 @@ import omero
 from omero.rtypes import rstring
 import omero.gateway
 import random
+import numpy
 
 
 logger = logging.getLogger(__name__)
@@ -731,22 +732,25 @@ def histogram_data(request, iid, theC, conn=None, **kwargs):
 
     image = conn.getObject("Image", iid)
 
-    theZ = request.REQUEST.get('theZ', 0)
-    theT = request.REQUEST.get('theT', 0)
+    theZ = int(request.REQUEST.get('theZ', 0))
+    theT = int(request.REQUEST.get('theT', 0))
     theC = int(theC)
 
     ch = image.getChannels()[theC]
     wMin = ch.getWindowMin()
     wMax = ch.getWindowMax()
-    print wMin, wMax
-    image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
-    pilImg = image.renderImage(theZ, theT)
-    # pilImg.show()
 
-    rgbHistogram = pilImg.histogram()
-    hsize = len(rgbHistogram) / 3
-    # histogram = [rgbHistogram[i] for i in range((hsize * theC) + 0, (hsize * (theC + 1)) + 0)]
-    histogram = rgbHistogram[0:hsize]
+    # Render Image (single channel white) and Use PIL for histogram
+    # image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+    # pilImg = image.renderImage(theZ, theT)
+    # rgbHistogram = pilImg.histogram()
+    # hsize = len(rgbHistogram) / 3
+    # histogram = rgbHistogram[0:hsize]
+
+    # OR, get plane and calculate histogram
+    plane = image.getPrimaryPixels().getPlane(theZ, theC, theT)
+    histogram, edges = numpy.histogram(plane, bins=256, range=(wMin, wMax))
+    histogram = [d for d in histogram]
 
     return HttpJsonResponse(histogram)
 
