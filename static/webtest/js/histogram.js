@@ -127,9 +127,15 @@ var JsonHistogram = function(model) {
         // .attr("transform", "translate(0,0)");
 
     // line plot
-    var path = svg.append("g")
+    svg.append("g")
         .append("path")
         .attr("class", "line");
+
+    // Another line plot for 'numpy' histogram
+    svg.append("g")
+        .append("path")
+        .attr("class", "line numpy");
+
     // area fill
     svg.append("path")
         .attr("class", "area")
@@ -150,6 +156,33 @@ var JsonHistogram = function(model) {
         .attr("font-size", "20px")
         .attr("y", 20)
         .attr("fill", "black");
+
+
+    var plotNumpyJson = function(data, color) {
+
+        // cache this for use by chartRange
+        // colCount = data.length;
+
+        var x = d3.scale.linear()
+            .domain([0, data.length - 1])
+            .range([0, graphWidth]);
+
+        var y = d3.scale.linear()
+            .domain([
+                d3.min(data),
+                d3.max(data)
+            ])
+            .range([graphHeight, 0]);
+
+        var line = d3.svg.line()
+            .x(function(d, i) { return x(i); })
+            .y(function(d, i) { return y(d); });
+
+        svg.selectAll(".numpy")
+            .datum(data)
+            .attr("d", line)
+            .attr('stroke', 'black');
+    }
 
 
     var plotJson = function(data, color) {
@@ -202,6 +235,9 @@ var JsonHistogram = function(model) {
         url += '?theT=' + theT + '&theZ=' + theZ;
 
         var startJson = new Date();
+        if ($("#numpyRadio").is(":checked")) {
+            url += '&data=numpy';
+        }
         $.getJSON(url, function(data){
             plotJson(data, color);
             plotStartEnd();
@@ -438,7 +474,7 @@ $(document).ready(function(){
     var model = new ViewerModel();
 
     new ChannelSliders(model);
-    new Histogram(model);
+    // new Histogram(model);
     new Zslider(model);
     new ImageViewer(model);
 

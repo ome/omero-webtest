@@ -740,17 +740,20 @@ def histogram_data(request, iid, theC, conn=None, **kwargs):
     wMin = ch.getWindowMin()
     wMax = ch.getWindowMax()
 
-    # Render Image (single channel white) and Use PIL for histogram
-    # image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
-    # pilImg = image.renderImage(theZ, theT)
-    # rgbHistogram = pilImg.histogram()
-    # hsize = len(rgbHistogram) / 3
-    # histogram = rgbHistogram[0:hsize]
-
-    # OR, get plane and calculate histogram
-    plane = image.getPrimaryPixels().getPlane(theZ, theC, theT)
-    histogram, edges = numpy.histogram(plane, bins=256, range=(wMin, wMax))
-    histogram = [d for d in histogram]
+    if request.REQUEST.get('data') == 'numpy':
+        print 'numpy'
+        # get plane and calculate histogram with Numpy...
+        plane = image.getPrimaryPixels().getPlane(theZ, theC, theT)
+        histogram, edges = numpy.histogram(plane, bins=256, range=(wMin, wMax))
+        histogram = [d for d in histogram]
+    else:
+        print 'PIL'
+        # OR... Render Image (single channel white) and Use PIL for histogram
+        image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+        pilImg = image.renderImage(theZ, theT)
+        rgbHistogram = pilImg.histogram()
+        hsize = len(rgbHistogram) / 3
+        histogram = rgbHistogram[0:hsize]
 
     return HttpJsonResponse(histogram)
 

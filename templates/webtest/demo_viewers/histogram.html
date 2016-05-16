@@ -95,8 +95,11 @@ svg {
     <div id="slider_green" style="background: green;"></div>
     <div id="slider_red" style="background: red;"></div> -->
 
-    <input id="zSlider" type="range" min="0" max="{{ image.getSizeZ }}" value="0" step="1"/>
+    <input id="zSlider" type="range" min="0" max="{{ image.getSizeZ|add:'-1' }}" value="0" step="1"/>
     <span id="zIndex">0</span>
+
+    <input type="radio" name="histogramData" value="PIL" checked> PIL
+    <input id="numpyRadio" type="radio" name="histogramData" value="numpy"> Numpy
 
 </script>
   </div>
