@@ -129,10 +129,16 @@ var JsonHistogram = function(model) {
             .append("path")
             .attr("class", "line");
 
+    // Add slider markers
+    svg.selectAll("rect")
+        .data([0, 0])
+        .enter().append("rect")
+        .attr("y", 0)
+        .attr("height", 300)
+        .attr("width", 1)
+        .attr("x", function(d, i) { return d * (graphWidth/2); });
 
-    // var setupHistogram = function(colums) {
 
-    // } 
     var plotJson = function(data, color) {
 
         // cache this for use by chartRange
@@ -156,7 +162,7 @@ var JsonHistogram = function(model) {
         svg.selectAll(".line")
             .datum(data)
             .attr("d", line)
-            .attr('stroke', 'black');
+            .attr('stroke', color);
     };
 
 
@@ -166,14 +172,43 @@ var JsonHistogram = function(model) {
         var iid = model.get('id'),
             theZ = model.get('theZ'),
             theT = model.get('theT'),
-            theC = model.get('selectedChannelIdx');
+            theC = model.get('selectedChannelIdx'),
+            color = '#' + model.get('channels')[theC].color;
         var url = '/webtest/histogram_data/' + iid + "/channel/" + theC + "/";
         url += '?theT=' + theT + '&theZ=' + theZ;
-        // loadHistogramData(model);
         $.getJSON(url, function(data){
-            plotJson(data);
+            plotJson(data, color);
+            plotStartEnd();
         });
     });
+
+    // Plot the start/end positions during slide (not set on model)
+    model.on('slide', function(args){
+        plotStartEnd([args[0], args[1]]);
+    });
+
+    var plotStartEnd = function(values) {
+        var start, end,
+            idx = model.get('selectedChannelIdx'),
+            ch = model.get('channels')[idx],
+            min = ch.window.min,
+            max = ch.window.max,
+            color = '#' + ch.color;
+        if (!values) {
+            start = ch.window.start;
+            end = ch.window.end;
+        } else {
+            start = values[0];
+            end = values[1];
+        }
+        start = ((start - min)/(max - min)) * 256;
+        end = ((end - min)/(max - min)) * 256;
+
+        svg.selectAll("rect")
+        .data([start, end])
+        .attr("x", function(d, i) { return d * (graphWidth/colCount); })
+        .attr('fill', color);
+    };
 
 };
 
