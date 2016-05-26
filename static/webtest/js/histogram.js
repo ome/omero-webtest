@@ -1,4 +1,37 @@
 
+// Backbone model
+// ------------------------------
+var ViewerModel = Backbone.Model.extend({
+
+    defaults: {
+        selectedChannelIdx: 0,
+        theZ: 0,
+        theT: 0,
+    },
+
+    loadData: function(imgId) {
+        $.getJSON("/webgateway/imgData/" + imgId + "/", function(data){
+
+            data.theT = data.rdefs.defaultT;
+            data.theZ = data.rdefs.defaultZ;
+            this.set(data);
+        }.bind(this));
+    },
+
+    setChannelWindow: function(idx, start, end) {
+        var oldChs = this.get('channels');
+        // Need to clone the list of channels...
+        var chs = [];
+        for (var i=0; i<oldChs.length; i++) {
+            chs.push($.extend(true, {}, oldChs[i]));
+        }
+        // ... then set new value ...
+        chs[idx].window.start = start;
+        chs[idx].window.end = end;
+        // ... so that we get the changed event triggering OK
+        this.set('channels', chs);
+    }
+});
 
 
 // UI components
@@ -38,41 +71,6 @@ var ImageViewer = function(model) {
         $("#viewer").attr('src', imgSrc);
     });
 };
-
-
-// Backbone model
-// ------------------------------
-var ViewerModel = Backbone.Model.extend({
-
-    defaults: {
-        selectedChannelIdx: 0,
-        theZ: 0,
-        theT: 0,
-    },
-
-    loadData: function(imgId) {
-        $.getJSON("/webgateway/imgData/" + imgId + "/", function(data){
-
-            data.theT = data.rdefs.defaultT;
-            data.theZ = data.rdefs.defaultZ;
-            this.set(data);
-        }.bind(this));
-    },
-
-    setChannelWindow: function(idx, start, end) {
-        var oldChs = this.get('channels');
-        // Need to clone the list of channels...
-        var chs = [];
-        for (var i=0; i<oldChs.length; i++) {
-            chs.push($.extend(true, {}, oldChs[i]));
-        }
-        // ... then set new value ...
-        chs[idx].window.start = start;
-        chs[idx].window.end = end;
-        // ... so that we get the changed event triggering OK
-        this.set('channels', chs);
-    }
-});
 
 
 var ChannelSliders = function(model) {
@@ -182,7 +180,7 @@ var JsonHistogram = function(model) {
             .datum(data)
             .attr("d", line)
             .attr('stroke', 'black');
-    }
+    };
 
 
     var plotJson = function(data, color) {
@@ -286,7 +284,7 @@ var JsonHistogram = function(model) {
 };
 
 
-var Histogram = function(model) {
+var CanvasDataHistogram = function(model) {
 
     var width = 512;
     var height = 512;
@@ -474,7 +472,7 @@ $(document).ready(function(){
     var model = new ViewerModel();
 
     new ChannelSliders(model);
-    // new Histogram(model);
+    // new CanvasDataHistogram(model);
     new Zslider(model);
     new ImageViewer(model);
 
