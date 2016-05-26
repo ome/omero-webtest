@@ -502,6 +502,7 @@ $(function(){
     // It seems to need this timeout, otherwise it's
     // not ready yet?
     setTimeout(function(){
+        // this is in histogram-react.js
         new ChannelButtonComponent(model);
 
         // finally, start everything by loading image

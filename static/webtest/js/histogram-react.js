@@ -47,8 +47,15 @@ var ChannelButtons = React.createClass({
 });
 
 
+// We 'export' our UI component based on Backbone model
 window.ChannelButtonComponent = function(model) {
 
+    // All the state is in the Backbone.js model.
+    // None of the React.js compoenents have state.
+
+    // We get the props we need and pass them
+    // to the ChannelButtons component whenever
+    // channels change...
     model.on('change:channels', function(model){
 
         var channels = model.get('channels');
