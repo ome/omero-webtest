@@ -9,6 +9,19 @@ var ViewerModel = Backbone.Model.extend({
         theT: 0,
     },
 
+    setChannelActive: function(idx, active) {
+        var oldChs = this.get('channels');
+        // Need to clone the list of channels...
+        var chs = [];
+        for (var i=0; i<oldChs.length; i++) {
+            chs.push($.extend(true, {}, oldChs[i]));
+        }
+        // ... then toggle active ...
+        chs[idx].active = active;
+        // ... so that we get the changed event triggering OK
+        this.set('channels', chs);
+    },
+
     loadData: function(imgId) {
         $.getJSON("/webgateway/imgData/" + imgId + "/", function(data){
 
@@ -37,13 +50,17 @@ var ViewerModel = Backbone.Model.extend({
 // UI components
 // ------------------------------------------------------
 var Zslider = function(model) {
+
     $("#zSlider").on('input', function(){
+        // on 'slide' we just update the Z label
         $("#zIndex").html('Z: ' + $(this).val());
     }).on('change', function(){
+        // on 'stop' we update the model
         var theZ = $(this).val();
         model.set('theZ', theZ);
     });
 
+    // when model changes, we update slider and Z label
     model.on('change:theZ', function(){
         var theZ = model.get('theZ');
         $("#zSlider").val(theZ);
@@ -58,7 +75,9 @@ var ImageViewer = function(model) {
 
         var cStrings = [];
         _.each(model.get('channels'), function(c, i){
-            cStrings.push(1+i + "|" + c.window.start + ":" + c.window.end + "$" + c.color);
+            if (c.active) {
+                cStrings.push(1+i + "|" + c.window.start + ":" + c.window.end + "$" + c.color);
+            }
         });
         var renderString = cStrings.join(","),
             imageId = model.get('id'),
@@ -466,7 +485,7 @@ var CanvasDataHistogram = function(model) {
 };
 
 
-$(document).ready(function(){
+$(function(){
     
 
     var model = new ViewerModel();
@@ -478,7 +497,15 @@ $(document).ready(function(){
 
     new JsonHistogram(model);
 
-    // start everything by loading image
-    model.loadData(IMAGE_ID);
+    // Uses React.js
+    // Since we're parsing JSX and babel on the fly,
+    // It seems to need this timeout, otherwise it's
+    // not ready yet?
+    setTimeout(function(){
+        new ChannelButtonComponent(model);
 
+        // finally, start everything by loading image
+        model.loadData(IMAGE_ID);
+
+    }, 100);
 });
