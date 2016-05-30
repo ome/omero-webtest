@@ -90,6 +90,7 @@ urlpatterns = patterns(
     url(r'^histogram_viewer/(?:(?P<iid>[0-9]+)/)?$', views.histogram_viewer,
         name="webtest_histogram_viewer"),
 
-    url(r'^histogram_data/(?P<iid>[0-9]+)/channel/(?P<theC>[0-9]+)/', views.histogram_data,
+    url(r'^histogram_data/(?P<iid>[0-9]+)/channel/(?P<theC>[0-9]+)/',
+        views.histogram_data,
         name="webtest_histogram_data"),
 )
