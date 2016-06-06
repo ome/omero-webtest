@@ -371,8 +371,8 @@ def split_view_figure(request, conn=None, **kwargs):
             # if we have channel info from a form, we know that
             # checkbox:None is unchecked (not absent)
             if request.REQUEST.get('cName%s' % i, None):
-                active = (None != request.REQUEST.get('cActive%s' % i, None))
-                merged = (None != request.REQUEST.get('cMerged%s' % i, None))
+                active = request.REQUEST.get('cActive%s' % i, None) is not None
+                merged = request.REQUEST.get('cMerged%s' % i, None) is not None
             else:
                 active = True
                 merged = True
@@ -488,8 +488,8 @@ def dataset_split_view(request, datasetId, conn=None, **kwargs):
             if request.REQUEST.get('cStart%s' % i, None):
                 active_left = (None is not request.REQUEST.get(
                                'cActiveLeft%s' % i, None))
-                active_right = (None != request.REQUEST.get(
-                                'cActiveRight%s' % i, None))
+                active_right = (request.REQUEST.get(
+                                'cActiveRight%s' % i, None) is not None)
             else:
                 active_left = True
                 active_right = True
