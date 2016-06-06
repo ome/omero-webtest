@@ -735,6 +735,7 @@ def histogram_data(request, iid, theC, conn=None, **kwargs):
     theZ = int(request.REQUEST.get('theZ', 0))
     theT = int(request.REQUEST.get('theT', 0))
     theC = int(theC)
+    proj = request.REQUEST.get('p', None) == 'intmax'
 
     ch = image.getChannels()[theC]
     wMin = ch.getWindowMin()
@@ -750,6 +751,8 @@ def histogram_data(request, iid, theC, conn=None, **kwargs):
         print 'PIL'
         # OR... Render Image (single channel white) and Use PIL for histogram
         image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+        if proj:
+            image.setProjection('intmax')
         pilImg = image.renderImage(theZ, theT)
         rgbHistogram = pilImg.histogram()
         hsize = len(rgbHistogram) / 3

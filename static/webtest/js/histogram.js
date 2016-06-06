@@ -69,9 +69,18 @@ var Zslider = function(model) {
 };
 
 
+var ProjectionButton = function(model) {
+
+    $("#projection").on('click', function(){
+        var proj = $(this).is(":checked");
+        model.set('projection', proj);
+    });
+};
+
+
 var ImageViewer = function(model) {
 
-    model.on('change:theZ change:theT change:channels', function(model){
+    model.on('change:theZ change:theT change:channels change:projection', function(model){
 
         var cStrings = [];
         _.each(model.get('channels'), function(c, i){
@@ -81,11 +90,15 @@ var ImageViewer = function(model) {
         });
         var renderString = cStrings.join(","),
             imageId = model.get('id'),
+            proj = model.get('projection'),
             theZ = model.get('theZ'),
             theT = model.get('theT');
 
         var imgSrc = '/webgateway/render_image/' + imageId + "/" + theZ + "/" + theT +
                 '/?c=' + renderString + "&m=c";
+        if (proj) {
+            imgSrc += "&p=intmax";
+        }
 
         $("#viewer").attr('src', imgSrc);
     });
@@ -247,9 +260,13 @@ var JsonHistogram = function(model) {
             theZ = model.get('theZ'),
             theT = model.get('theT'),
             theC = model.get('selectedChannelIdx'),
+            proj = model.get('projection'),
             color = '#' + model.get('channels')[theC].color;
         var url = '/webtest/histogram_data/' + iid + "/channel/" + theC + "/";
         url += '?theT=' + theT + '&theZ=' + theZ;
+        if (proj) {
+            url += "&p=intmax";
+        }
 
         var startJson = new Date();
         if ($("#numpyRadio").is(":checked")) {
@@ -265,7 +282,7 @@ var JsonHistogram = function(model) {
     // We 'debounce' loading json so that it's not repeated very rapidly
     loadAndPlotJson = _.debounce(loadAndPlotJson);
 
-    model.on('change:theZ change:theT change:selectedChannelIdx', loadAndPlotJson);
+    model.on('change:theZ change:theT change:selectedChannelIdx change:projection', loadAndPlotJson);
 
     // Plot the start/end positions during slide (not set on model)
     model.on('slide', function(args){
@@ -493,6 +510,7 @@ $(function(){
     new ChannelSliders(model);
     // new CanvasDataHistogram(model);
     new Zslider(model);
+    new ProjectionButton(model);
     new ImageViewer(model);
 
     new JsonHistogram(model);
