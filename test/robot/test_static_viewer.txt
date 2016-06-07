@@ -1,0 +1,25 @@
+
+*** Settings ***
+
+Library           Selenium2Library
+
+
+
+*** Test Cases ***
+
+Test Static Viewer
+    Open Browser                        http://localhost:4080/webtest/static_example/       Chrome
+
+    Wait Until Page Contains Element    id=viewport-img
+    Click Element                       xpath=//span[@class='wb_zoomIn']
+
+    # Load a big image
+    Click Element                       id=bigimageThumb
+    Wait Until Page Contains Element    id=viewport-img-tiles
+
+    Click Element                       id=smallimageThumb
+    Wait Until Keyword Succeeds         5    1    Page Should Not Contain Element     id=viewport-img-tiles
+    Click Element                       xpath=//span[@class='wb_zoomIn']
+
+
+    Close All Browsers
