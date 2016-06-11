@@ -5,16 +5,39 @@ console.log("test");
 var imageId;
 var sizeX;
 var sizeY;
+var currZ = 0;
+var currZoom = 100;
 
 var img = new Image();
 
 var canvas,
     ctx;
 var theZ = document.getElementById('theZ');
+var zoomSpan = document.getElementById('zoom');
 
-var drawPlane = function(z, t) {
+var drawPlane = function(z, zoom) {
 
-    ctx.drawImage(img, sizeX * z, 0, sizeX, sizeY, 0, 0, sizeX, sizeY);
+    zoom = zoom || currZoom;
+    z = z || currZ;
+    currZ = z;
+    currZoom = zoom;
+
+    console.log(z, zoom);
+    zoom = zoom/100;
+
+    srcX = sizeX * z;
+    srcY = 0;
+    srcW = sizeX;
+    srcH = sizeY;
+
+    canvW = sizeX * zoom;
+    canvH = sizeY * zoom;
+
+    canvX = (srcW - canvW) / 2;
+    canvY = (srcH - canvH) / 2;
+
+    ctx.fillRect(0, 0, sizeX, sizeY);
+    ctx.drawImage(img, srcX, srcY, srcW, srcH, canvX, canvY, canvW, canvH);
 };
 
 
@@ -23,20 +46,25 @@ document.getElementById('zslider').addEventListener('input', function(){
     drawPlane(this.value);
 });
 
+
+document.getElementById('zoomslider').addEventListener('input', function(){
+    zoomSpan.innerHTML = this.value;
+    drawPlane(undefined, this.value);
+});
+
 var loadImageData = function(imgData) {
 
     sizeX = imgData.size.width;
     sizeY = imgData.size.height;
     imageId = imgData.id;
+    canvas = document.getElementById("canvas");
+    canvas.width = sizeX;
+    canvas.height = sizeY;
+    ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgb(200,200,200)";
 
     // When we have the Image data, use it to populate the canvas
     img.onload = function() {
-        canvas = document.getElementById("canvas");
-        canvas.width = sizeX;
-        canvas.height = sizeY;
-
-        ctx = canvas.getContext("2d");
-
         z = 0;
 
         drawPlane(z);
