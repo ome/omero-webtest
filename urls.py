@@ -59,7 +59,7 @@ urlpatterns = patterns(
     # Viewer overlays individual channels from the same image or
     # different images and manipulate them separately.
     # Translate, scale etc relative to one-another.
-    url(r'^channel_overlay_viewer/(?P<imageId>[0-9]+)/',
+    url(r'^channel_overlay_viewer/(?P<iid>[0-9]+)/',
         views.channel_overlay_viewer, name='webtest_channel_overlay_viewer'),
     # this is the url for rendering planes for the viewer
     url(r'^render_channel_overlay/', views.render_channel_overlay,
