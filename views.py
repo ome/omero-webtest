@@ -679,13 +679,13 @@ def render_multi_planes(request, imageId, conn=None, **kwargs):
 
     if '-' in theZ:
         z1, z2 = map(int, theZ.split('-'))
-        zList = range(z1, z2)
+        zList = range(z1, z2 + 1)
     else:
         zList = [int(theZ)]
 
     if '-' in theT:
         t1, t2 = map(int, theT.split('-'))
-        tList = range(t1, t2)
+        tList = range(t1, t2 + 1)
     else:
         tList = [int(theT)]
 
