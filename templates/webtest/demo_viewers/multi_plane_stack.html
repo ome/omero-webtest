@@ -3,6 +3,15 @@
     <head>
         <title>Full Stack Viewer</title>
         <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            #canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
             #zslider {
                 transform: rotate(-90deg);
                 position: absolute;
@@ -10,11 +19,17 @@
                 top: 230px;
                 width: 200px;
             }
+            #controlPanel {
+                position: absolute;
+                z-index: 10;
+                background: white;
+            }
         </style>
     </head>
 
     <body>
 
+      <div id="controlPanel">
         Z:
         <input id="zslider" type="range" min='0' />
         <span id='theZ'>0</span>
@@ -26,7 +41,7 @@
         <span id='zoom'>100</span> %
 
         <span id="status"></span>
-        <br>
+      </div>
 
         <canvas id="canvas">
         </canvas>

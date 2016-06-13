@@ -17,6 +17,10 @@ var imageLoaders = [],
     loadedCount = 0,
     loadTime;
 
+console.log(window.innerHeight);
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 
 var drawPlane = function(theZ, zoom) {
 
@@ -27,6 +31,7 @@ var drawPlane = function(theZ, zoom) {
 
     document.getElementById('zslider').value = currZ;
     theZ.innerHTML = currZ;
+    zoomSpan.innerHTML = currZoom;
 
     var theT = 0;
     console.log('drawPlane(), theZ, theT, zoom', theZ, theT, zoom);
@@ -49,10 +54,12 @@ var drawPlane = function(theZ, zoom) {
         return;
     }
     // var s = i.getImgAndCoords(z, 0);
-    canvX = (s.width - canvW) / 2;
-    canvY = (s.height - canvH) / 2;
+    console.log(canvas.width, 'canvas.width');
+    canvX = (canvas.width - canvW) / 2;
+    console.log('canvX', canvX);
+    canvY = (canvas.height - canvH) / 2;
 
-    ctx.fillRect(0, 0, sizeX, sizeY);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
 };
 
@@ -107,8 +114,8 @@ var loadImageStack = function(imgData) {
     document.getElementById('zslider').setAttribute('max', sizeZ);
 
     imageId = imgData.id;
-    canvas.width = sizeX;
-    canvas.height = sizeY;
+    // canvas.width = sizeX;
+    // canvas.height = sizeY;
     ctx = canvas.getContext("2d");
     ctx.fillStyle = "rgb(200,200,200)";
 
