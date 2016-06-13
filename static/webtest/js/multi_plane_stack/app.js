@@ -25,6 +25,9 @@ var drawPlane = function(theZ, zoom) {
     currZ = theZ;
     currZoom = zoom;
 
+    document.getElementById('zslider').value = currZ;
+    theZ.innerHTML = currZ;
+
     var theT = 0;
     console.log('drawPlane(), theZ, theT, zoom', theZ, theT, zoom);
     zoom = zoom/100;
@@ -55,13 +58,11 @@ var drawPlane = function(theZ, zoom) {
 
 
 document.getElementById('zslider').addEventListener('input', function(){
-    theZ.innerHTML = this.value;
     drawPlane(parseInt(this.value, 10));
 });
 
 
 document.getElementById('zoomslider').addEventListener('input', function(){
-    zoomSpan.innerHTML = this.value;
     drawPlane(undefined, parseInt(this.value, 10));
 });
 
@@ -86,7 +87,7 @@ var loaderCallback = function(msg) {
         loadedCount++;
 
         var s = loadedCount + "/" + imageLoaders.length + " loaded";
-        s += " in " + (new Date() - loadTime);
+        s += " in " + ((new Date() - loadTime)/1000) + " s";
         statusElement.innerHTML = s;
 
         if (loadedCount === imageLoaders.length) {
@@ -115,7 +116,7 @@ var loadImageStack = function(imgData) {
     var img,
         zStart = 0,
         zStop = 0,
-        planesPerLoader = 5,
+        planesPerLoader = 10,
         tStart = 0,
         tStop = 0;
 
