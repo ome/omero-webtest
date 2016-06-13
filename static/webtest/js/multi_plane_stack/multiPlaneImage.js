@@ -1,6 +1,6 @@
 
 
-var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tStart, tStop, rdef) {
+var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tStart, tStop, callback, rdef) {
 
     var img = new Image();
 
@@ -8,6 +8,7 @@ var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tS
 
     img.onload = function() {
         status = "loaded";
+        callback("loaded");
     };
 
     var getSrcUrl = function() {
