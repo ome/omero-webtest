@@ -63,6 +63,23 @@ document.getElementById('zoomslider').addEventListener('input', function(){
 });
 
 
+addWheelListener(canvas, function( e ) {
+    e.preventDefault();
+    console.log( e.deltaY );
+    var prevZ = currZ;
+
+    currZ += e.deltaY;
+    currZ = Math.max(0, currZ);
+    currZ = Math.min(sizeZ, currZ);
+
+    if (prevZ !== currZ) {
+        document.getElementById('zslider').value = currZ;
+        theZ.innerHTML = currZ;
+        drawPlane();
+    }
+});
+
+
 var loadImageStack = function(imgData) {
 
     sizeX = imgData.size.width;
