@@ -65,7 +65,6 @@ document.getElementById('zoomslider').addEventListener('input', function(){
 
 addWheelListener(canvas, function( e ) {
     e.preventDefault();
-    console.log( e.deltaY );
     var prevZ = currZ;
 
     currZ += e.deltaY;
