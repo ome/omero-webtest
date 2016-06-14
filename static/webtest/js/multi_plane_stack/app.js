@@ -9,9 +9,11 @@ var currZoom = 100;
 
 var canvas = document.getElementById("canvas"),
     ctx;
-var theZ = document.getElementById('theZ');
-var zoomSpan = document.getElementById('zoom');
-var statusElement = document.getElementById('status');
+var zslider_el = document.getElementById('zslider');
+var theZ_el = document.getElementById('theZ');
+var zoomSlider_el = document.getElementById('zoomslider');
+var zoom_el = document.getElementById('zoom');
+var status_el = document.getElementById('status');
 
 var imageLoaders = [],
     loadedCount = 0,
@@ -29,7 +31,7 @@ var drawPlane = function(theZ, zoom) {
     currZ = theZ;
     currZoom = zoom;
 
-    zoomSpan.innerHTML = currZoom;
+    zoom_el.innerHTML = currZoom;
 
     var theT = 0;
     console.log('drawPlane(), theZ, theT, zoom', theZ, theT, zoom);
@@ -62,13 +64,13 @@ var drawPlane = function(theZ, zoom) {
 };
 
 
-document.getElementById('zslider').addEventListener('input', function(){
-    theZ.innerHTML = this.value;
+zslider_el.addEventListener('input', function(){
+    theZ_el.innerHTML = this.value;
     drawPlane(parseInt(this.value, 10));
 });
 
 
-document.getElementById('zoomslider').addEventListener('input', function(){
+zoomSlider_el.addEventListener('input', function(){
     drawPlane(undefined, parseInt(this.value, 10));
 });
 
@@ -82,8 +84,8 @@ addWheelListener(canvas, function( e ) {
     currZ = Math.min(sizeZ, currZ);
 
     if (prevZ !== currZ) {
-        document.getElementById('zslider').value = currZ;
-        theZ.innerHTML = currZ;
+        zslider_el.value = currZ;
+        theZ_el.innerHTML = currZ;
         drawPlane();
     }
 });
@@ -94,7 +96,7 @@ var loaderCallback = function(msg) {
 
         var s = loadedCount + "/" + imageLoaders.length + " loaded";
         s += " in " + ((new Date() - loadTime)/1000) + " s";
-        statusElement.innerHTML = s;
+        status_el.innerHTML = s;
 
         // Try to drawPlane() even though current plane may not be loaded yet...
         drawPlane();
@@ -109,7 +111,7 @@ var loadImageStack = function(imgData) {
     sizeZ = imgData.size.z;
     currZ = imgData.rdefs.defaultZ;
 
-    document.getElementById('zslider').setAttribute('max', sizeZ);
+    zslider_el.setAttribute('max', sizeZ);
 
     imageId = imgData.id;
     // canvas.width = sizeX;
