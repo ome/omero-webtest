@@ -4,13 +4,17 @@ var imageId;
 var sizeX;
 var sizeY;
 var sizeZ;
+var sizeT;
 var currZ = 0;
+var currT = 0;
 var currZoom = 100;
 
 var canvas = document.getElementById("canvas"),
     ctx;
 var zslider_el = document.getElementById('zslider');
 var theZ_el = document.getElementById('theZ');
+var tslider_el = document.getElementById('tslider');
+var theT_el = document.getElementById('theT');
 var zoomSlider_el = document.getElementById('zoomslider');
 var zoom_el = document.getElementById('zoom');
 var status_el = document.getElementById('status');
@@ -19,21 +23,24 @@ var imageLoaders = [],
     loadedCount = 0,
     loadTime;
 
-console.log(window.innerHeight);
+// canvas should fill the window
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 
-var drawPlane = function(theZ, zoom) {
+var drawPlane = function(data) {
 
-    zoom = zoom || currZoom;
-    theZ = theZ || currZ;
+    console.log('drawPlane', data);
+    data = data || {};
+    zoom = data.zoom !== undefined ? data.zoom : currZoom;
+    theZ = data.theZ !== undefined ? data.theZ : currZ;
+    theT = data.theT !== undefined ? data.theT : currT;
     currZ = theZ;
+    currT = theT;
     currZoom = zoom;
 
     zoom_el.innerHTML = currZoom;
 
-    var theT = 0;
     console.log('drawPlane(), theZ, theT, zoom', theZ, theT, zoom);
     zoom = zoom/100;
 
@@ -49,6 +56,9 @@ var drawPlane = function(theZ, zoom) {
             break;
         }
     }
+    ctx.fillStyle = "rgb(200,200,200)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     if (!s) {
         console.log("Failed to find Loader");
         return;
@@ -58,9 +68,6 @@ var drawPlane = function(theZ, zoom) {
     canvX = (canvas.width - canvW) / 2;
     console.log('canvX', canvX);
     canvY = (canvas.height - canvH) / 2;
-
-    ctx.fillStyle = "rgb(200,200,200)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
 };
 
@@ -70,14 +77,17 @@ window.onresize = function(){
     drawPlane();
 };
 
+// Handle Z, T and zoom sliders
 zslider_el.addEventListener('input', function(){
     theZ_el.innerHTML = this.value;
-    drawPlane(parseInt(this.value, 10));
+    drawPlane({'theZ': parseInt(this.value, 10)});
 });
-
-
+tslider_el.addEventListener('input', function(){
+    theT_el.innerHTML = this.value;
+    drawPlane({'theT': parseInt(this.value, 10)});
+});
 zoomSlider_el.addEventListener('input', function(){
-    drawPlane(undefined, parseInt(this.value, 10));
+    drawPlane({'zoom': parseInt(this.value, 10)});
 });
 
 
@@ -87,7 +97,7 @@ addWheelListener(canvas, function( e ) {
 
     currZ += e.deltaY;
     currZ = Math.max(0, currZ);
-    currZ = Math.min(sizeZ, currZ);
+    currZ = Math.min(sizeZ-1, currZ);
 
     if (prevZ !== currZ) {
         zslider_el.value = currZ;
@@ -115,10 +125,24 @@ var loadImageStack = function(imgData) {
     sizeX = imgData.size.width;
     sizeY = imgData.size.height;
     sizeZ = imgData.size.z;
+    sizeT = imgData.size.t;
     currZ = imgData.rdefs.defaultZ;
+    currT = imgData.rdefs.defaultT;
 
-    zslider_el.setAttribute('max', sizeZ);
-
+    console.log('currZ', currZ);
+    if (sizeZ === 1) {
+        zslider_el.setAttribute('disabled', true);
+    } else {
+        theZ_el.innerHTML = currZ;
+        zslider_el.setAttribute('max', sizeZ-1);
+        zslider_el.value = currZ;
+    }
+    if (sizeT === 1) {
+        tslider_el.setAttribute('disabled', true);
+    } else {
+        tslider_el.setAttribute('max', sizeT-1);
+        tslider_el.value = currT;
+    }
     imageId = imgData.id;
     // canvas.width = sizeX;
     // canvas.height = sizeY;
@@ -129,18 +153,22 @@ var loadImageStack = function(imgData) {
     var img,
         zStart = 0,
         zStop = 0,
-        planesPerLoader = 10,
-        tStart = 0,
-        tStop = 0;
+        planesPerLoader = 10;
 
     loadedCount = 0;
     loadTime = new Date();
-    for (var i=0; zStop<=sizeZ; i++) {
-        zStop = zStart + planesPerLoader;
-        console.log('creating loader zStart, zStop', zStart, Math.min(zStop, sizeZ));
-        img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY, zStart, Math.min(zStop, sizeZ-1), tStart, tStop, loaderCallback);
-        imageLoaders.push(img);
-        zStart += planesPerLoader + 1;
+    console.log('sizeT', sizeT);
+    for (var tStart=0; tStart<sizeT; tStart++) {
+        console.log('zStop = zStart + planesPerLoader;', zStop, zStart, planesPerLoader);
+        for (var z=0; zStop<=sizeZ; z++) {
+            zStop = zStart + planesPerLoader;
+            console.log('creating loader zStart, zStop', zStart, Math.min(zStop, sizeZ));
+            img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY, zStart, Math.min(zStop, sizeZ-1), tStart, tStart, loaderCallback);
+            imageLoaders.push(img);
+            zStart += planesPerLoader + 1;
+        }
+        zStart = 0;
+        zStop = 0;
     }
 };
 
