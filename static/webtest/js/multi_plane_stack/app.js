@@ -153,20 +153,27 @@ var loadImageStack = function(imgData) {
     var img,
         zStart = 0,
         zStop = 0,
+        tStart = 0,
+        tStop = 0,
         planesPerLoader = 10;
 
     loadedCount = 0;
     loadTime = new Date();
     console.log('sizeT', sizeT);
-    for (var tStart=0; tStart<sizeT; tStart++) {
-        console.log('zStop = zStart + planesPerLoader;', zStop, zStart, planesPerLoader);
+    for (var t=0; tStart<sizeT; t++) {
+        if (sizeZ === 1) {
+            tStop = tStart + planesPerLoader;
+        } else {
+            tStop = tStart;
+        }
         for (var z=0; zStop<=sizeZ; z++) {
             zStop = zStart + planesPerLoader;
-            console.log('creating loader zStart, zStop', zStart, Math.min(zStop, sizeZ));
-            img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY, zStart, Math.min(zStop, sizeZ-1), tStart, tStart, loaderCallback);
+            console.log('creating loader zStart, zStop', zStart, Math.min(zStop, sizeZ), tStart, Math.min(tStop, sizeT-1));
+            img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY, zStart, Math.min(zStop, sizeZ-1), tStart, Math.min(tStop, sizeT-1), loaderCallback);
             imageLoaders.push(img);
             zStart += planesPerLoader + 1;
         }
+        tStart = tStop + 1;
         zStart = 0;
         zStop = 0;
     }
