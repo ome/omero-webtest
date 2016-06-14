@@ -59,10 +59,16 @@ var drawPlane = function(theZ, zoom) {
     console.log('canvX', canvX);
     canvY = (canvas.height - canvH) / 2;
 
+    ctx.fillStyle = "rgb(200,200,200)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
 };
 
+window.onresize = function(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    drawPlane();
+};
 
 zslider_el.addEventListener('input', function(){
     theZ_el.innerHTML = this.value;
