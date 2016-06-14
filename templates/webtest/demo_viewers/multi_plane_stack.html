@@ -16,32 +16,71 @@
                 transform: rotate(-90deg);
                 position: absolute;
                 transform-origin: left;
-                top: 230px;
-                width: 200px;
+                bottom: 30px;
+                width: 300px;
+                left: 40%
             }
-            #controlPanel {
+            .centerPanel {
+                z-index: 10;
                 position: absolute;
+                left: 0;
+                right: 0;
+                height: 35px;
+            }
+            .centerPanel div {
+                margin: auto;
+            }
+            .sidePanel {
+                z-index: 10;
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 35px;
+            }
+            .sidePanel .controlPanel {
+                position: absolute;
+                bottom: 50px;
+                top: 50px;
+            }
+
+            .controlPanel {
+                text-align: center;
                 z-index: 10;
                 background: white;
+                border-radius: 5px;
             }
         </style>
     </head>
 
     <body>
 
-      <div id="controlPanel">
-        Z:
-        <input id="zslider" type="range" min='0' />
-        <span id='theZ'>0</span>
+        <div class="centerPanel" style="top: 30px;">
+            <div class="controlPanel" style="width: 500px; height: 35px">
+                zoom:
+                <input id="zoomslider" type="range" min='10' max='500' value='100' />
+                <span id='zoom'>100</span> %
 
-        |
+                <span id="status"></span>
+            </div>
+        </div>
 
-        zoom:
-        <input id="zoomslider" type="range" min='10' max='500' value='100' />
-        <span id='zoom'>100</span> %
+        <div class="sidePanel" style="left: 30px">
+            <div class="controlPanel" style="width: 50px">
+                <input id="zslider" type="range" min='0' />
+                <div style="position: absolute; bottom: 10px; left:0; right:0; text-align:center">
+                    Z: <span id='theZ'>0</span>
+                </div>
+            </div>
+        </div>
 
-        <span id="status"></span>
-      </div>
+        <div class="centerPanel" style="bottom: 30px;">
+            <div class="controlPanel" style="width: 500px; height: 35px">
+                T:
+                <input id="tslider" type="range" min='0' />
+                <span id='theT'>0</span>
+            </div>
+        </div>
 
         <canvas id="canvas">
         </canvas>

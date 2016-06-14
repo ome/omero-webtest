@@ -29,8 +29,6 @@ var drawPlane = function(theZ, zoom) {
     currZ = theZ;
     currZoom = zoom;
 
-    document.getElementById('zslider').value = currZ;
-    theZ.innerHTML = currZ;
     zoomSpan.innerHTML = currZoom;
 
     var theT = 0;
@@ -65,6 +63,7 @@ var drawPlane = function(theZ, zoom) {
 
 
 document.getElementById('zslider').addEventListener('input', function(){
+    theZ.innerHTML = this.value;
     drawPlane(parseInt(this.value, 10));
 });
 
@@ -97,9 +96,8 @@ var loaderCallback = function(msg) {
         s += " in " + ((new Date() - loadTime)/1000) + " s";
         statusElement.innerHTML = s;
 
-        if (loadedCount === imageLoaders.length) {
-            drawPlane();
-        }
+        // Try to drawPlane() even though current plane may not be loaded yet...
+        drawPlane();
     }
 };
 
