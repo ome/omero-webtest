@@ -28,6 +28,39 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 
+var computeFrame = function(img, x, y, width, height, ctx, canvX, canvY, canvW, canvH) {
+    var hiddencanvas = document.getElementById("hiddencanvas");
+    hiddencanvas.width = width;
+    hiddencanvas.height = height;
+    var ctx1 = hiddencanvas.getContext("2d");
+    ctx1.drawImage(img, x, y, width, height, 0, 0, width, height);
+
+    var frame = ctx1.getImageData(0, 0, width, height);
+    var target = ctx.getImageData(canvX, canvY, canvW, canvH);
+    console.log("frame", frame.data.length, "target", target.data.length);
+    var l = frame.data.length / 4;
+
+    // for each colour we check value in target image and pick
+    // the greatest
+
+    var r, g, b, t_r, t_g, t_b;
+    for (var i = 0; i < l; i++) {
+        r = frame.data[i * 4 + 0];
+        t_r = target.data[i * 4 + 0];
+        frame.data[i * 4 + 0] = Math.max(r, t_r);
+        g = frame.data[i * 4 + 1];
+        t_g = target.data[i * 4 + 1];
+        frame.data[i * 4 + 1] = Math.max(g, t_g);
+        b = frame.data[i * 4 + 2];
+        t_b = target.data[i * 4 + 2];
+        frame.data[i * 4 + 2] = Math.max(b, t_b);
+        // if (g > 100 && r > 100 && b < 43)
+        //   frame.data[i * 4 + 3] = 0;
+    }
+    this.ctx.putImageData(frame, canvX, canvY);
+};
+
+
 var drawPlane = function(data) {
 
     console.log('drawPlane', data);
@@ -56,8 +89,8 @@ var drawPlane = function(data) {
             break;
         }
     }
-    ctx.fillStyle = "rgb(200,200,200)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // ctx.fillStyle = "rgb(0,0,0)";
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (!s) {
         console.log("Failed to find Loader");
@@ -68,7 +101,8 @@ var drawPlane = function(data) {
     canvX = (canvas.width - canvW) / 2;
     console.log('canvX', canvX);
     canvY = (canvas.height - canvH) / 2;
-    ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
+    // ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
+    computeFrame(s.img, s.x, s.y, s.width, s.height, ctx, canvX, canvY, canvW, canvH);
 };
 
 window.onresize = function(){
