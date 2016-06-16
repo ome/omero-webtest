@@ -20,12 +20,14 @@ $(document).ready(function() {
     var $viewer = $('#viewer');
     var imgHeight = $viewer.attr('height');
     var imgWidth = $viewer.attr('width');
+    var SIZEZ = {{ image.getSizeZ }};
+    var SIZET = {{ image.getSizeT }};
     
     function preview(img, selection) {
         if (!selection.width || !selection.height)
             return;
 
-        var zoomPercent = parseInt($zoomSelect.attr('value'));
+        var zoomPercent = parseInt($zoomSelect.val());
         var height = {{ image.getSizeY }} * zoomPercent/100;
         var width = {{ image.getSizeX }} * zoomPercent/100;
 
@@ -57,7 +59,7 @@ $(document).ready(function() {
     $(".cSelect").click(function() {
         
         var $radio = $(this);
-        var cIndex = $radio.attr('value');
+        var cIndex = $radio.val();
         
         $(".planeRow").css("background", "white")
             .each(function() {
@@ -81,9 +83,9 @@ $(document).ready(function() {
         else if (incType == "plusSmall") incValue = 1;
         
         var $input = $(this).parent().children('input');
-        var oldVal = parseInt($input.attr('value'));
+        var oldVal = parseInt($input.val());
         var newVal = oldVal + incValue;
-        $input.attr('value', newVal);
+        $input.val(newVal);
         refreshImage();
     });
     // increment Z indexes
@@ -95,8 +97,11 @@ $(document).ready(function() {
         // increment all Z indexes
         $('.zIndex').each(function() {
             var $input = $(this);
-            var oldVal = parseInt($input.attr('value'));
-            $input.attr('value', oldVal + incValue);
+            var oldVal = parseInt($input.val());
+            var newVal = oldVal + incValue;
+            if (newVal > -1 && newVal < SIZEZ) {
+                $input.val(oldVal + incValue);
+            }
         });
         refreshImage();
     });
@@ -109,8 +114,11 @@ $(document).ready(function() {
         // increment all Z indexes
         $('.tIndex').each(function() {
             var $input = $(this);
-            var oldVal = parseInt($input.attr('value'));
-            $input.attr('value', oldVal + incValue);
+            var oldVal = parseInt($input.val());
+            var newVal = oldVal + incValue;
+            if (newVal > -1 && newVal < SIZET) {
+                $input.val(oldVal + incValue);
+            }
         });
         refreshImage();
     });
@@ -126,32 +134,32 @@ $(document).ready(function() {
             if (index>0){
                 query += ",";
             }
-            var imageId = $row.find('[name="imageId"]').attr('value');
-            var z = $row.find('[name="z"]').attr('value');
-            var c = $row.find('[name="c"]').attr('value');
-            var t = $row.find('[name="t"]').attr('value');
+            var imageId = $row.find('[name="imageId"]').val();
+            var z = $row.find('[name="z"]').val();
+            var c = $row.find('[name="c"]').val();
+            var t = $row.find('[name="t"]').val();
             query += index + "|" + imageId + ":" + z  + ":" + c + ":" + t;
-            var x = $row.find('[name="x"]').attr('value');
-            var y = $row.find('[name="y"]').attr('value');
+            var x = $row.find('[name="x"]').val();
+            var y = $row.find('[name="y"]').val();
             query += "$x:" + x + "_y:" + y;
             index +=1;
         });
         
         $(".cSelect[name='red']").each(function() {
-            if ($(this).attr('checked')) {
-                var i=$(this).attr('value');
+            if ($(this).is(':checked')) {
+                var i=$(this).val();
                 query += '&red='+i;
             };
         });
         $(".cSelect[name='green']").each(function() {
-            if ($(this).attr('checked')) {
-                var i=$(this).attr('value');
+            if ($(this).is(':checked')) {
+                var i=$(this).val();
                 query += '&green='+i;
             };
         });
         $(".cSelect[name='blue']").each(function() {
-            if ($(this).attr('checked')) {
-                var i=$(this).attr('value');
+            if ($(this).is(':checked')) {
+                var i=$(this).val();
                 query += '&blue='+i;
             };
         });
@@ -178,12 +186,12 @@ $(document).ready(function() {
         var imageId = null;
         $(".planeRow").each(function() {
             var $row = $(this);
-            imageId = $row.find('[name="imageId"]').attr('value');
-            var z = $row.find('[name="z"]').attr('value');
+            imageId = $row.find('[name="imageId"]').val();
+            var z = $row.find('[name="z"]').val();
             zOffsets.push(z);
-            var x = $row.find('[name="x"]').attr('value');
+            var x = $row.find('[name="x"]').val();
             xOffsets.push(x);
-            var y = $row.find('[name="y"]').attr('value');
+            var y = $row.find('[name="y"]').val();
             yOffsets.push(y);
         });
         // normalise z-offsets to 0
@@ -213,16 +221,8 @@ $(document).ready(function() {
         <img id='viewer' src="" width="{{ image.width }}" height="{{ image.height }}"/>
     </div>
     
-    <div id="preview" style="float:left; width: 100px; height: 100px; overflow: hidden;">
-        <img id="lens" src="" style="width: 100px; height: 100px;" />
-    </div>
-    
     <div style="padding:10px; margin:10px; float:left">
-        <div style="float:right">
-                Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %
-        </div>
         Adjust the x-shift and y-shift of individual planes to align them. <br />
-        Draw a rectangle on the image to zoom that region.<br />
         Also possible to pick the Z, C, T and Image-ID to mix planes from different images.
         <hr />
         <!-- table of all the channels -->
@@ -285,6 +285,13 @@ $(document).ready(function() {
             </tr>
         </table>
         <hr />
+
+        Lens: draw a rectangle on the main image above to zoom that region.<br />
+        Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %<br>
+
+        <div id="preview" style="float:left; width: 100px; height: 100px; overflow: hidden;">
+            <img id="lens" src="" style="width: 100px; height: 100px;" />
+        </div>
         
     </div>
 

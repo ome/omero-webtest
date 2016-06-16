@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import generic
 from django.core.urlresolvers import reverse
@@ -82,14 +82,19 @@ def index(request, conn=None, **kwargs):
 
 
 @login_required()
-def channel_overlay_viewer(request, imageId, conn=None, **kwargs):
+def channel_overlay_viewer(request, iid, conn=None, **kwargs):
     """
     Viewer for overlaying separate channels from the same image or
     different images and adjusting horizontal and vertical alignment
     of each
     """
-    image = conn.getObject("Image", imageId)
+    image = conn.getObject("Image", iid)
     default_z = image.getSizeZ()/2
+
+    if image is not None:
+        if image.getSizeC() == 1:
+            return HttpResponseRedirect(
+                reverse("webgateway.views.full_viewer", args=(iid,)))
 
     # try to work out which channels should be 'red',
     # 'green', 'blue' based on rendering settings
@@ -161,7 +166,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
     # e.g. planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0\
     #      &red=2&blue=0&green=1
     planes = {}
-    p = request.REQUEST.get('planes', None)
+    p = request.GET.get('planes', None)
     if p is None:
         return HttpResponse("Request needs plane info to render jpeg e.g.\
             ?planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0\
@@ -187,9 +192,9 @@ def render_channel_overlay(request, conn=None, **kwargs):
 
     # from the request we need to know which plane is blue,
     # green, red (if any) by index e.g. red=0&green=2
-    red = request.REQUEST.get('red', None)
-    green = request.REQUEST.get('green', None)
-    blue = request.REQUEST.get('blue', None)
+    red = request.GET.get('red', None)
+    green = request.GET.get('green', None)
+    blue = request.GET.get('blue', None)
 
     # like split-view: we want to get single-channel images...
 
@@ -259,7 +264,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
     merge.save(rv, 'jpeg', quality=int(compression*100))
     jpeg_data = rv.getvalue()
 
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
 
@@ -488,7 +493,7 @@ def dataset_split_view(request, datasetId, conn=None, **kwargs):
             if request.REQUEST.get('cStart%s' % i, None):
                 active_left = (None is not request.REQUEST.get(
                                'cActiveLeft%s' % i, None))
-                active_right = (None != request.REQUEST.get(
+                active_right = (None is not request.REQUEST.get(
                                 'cActiveRight%s' % i, None))
             else:
                 active_left = True
