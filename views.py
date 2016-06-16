@@ -6,6 +6,7 @@ from django.views import generic
 from django.core.urlresolvers import reverse
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.http import HttpJsonResponse
 
 from omeroweb.webclient.decorators import login_required, render_response
 
@@ -16,6 +17,7 @@ import omero
 from omero.rtypes import rstring
 import omero.gateway
 import random
+import numpy
 
 
 logger = logging.getLogger(__name__)
@@ -720,6 +722,48 @@ def render_performance(request, obj_type, id, conn=None, **kwargs):
     return render(request,
                   'webtest/demo_viewers/render_performance.html',
                   context)
+
+
+@login_required()
+def histogram_viewer(request, iid, conn=None, **kwargs):
+
+    image = conn.getObject("Image", iid)
+    context = {'image': image}
+    return render(request, 'webtest/demo_viewers/histogram.html', context)
+
+
+@login_required()
+def histogram_data(request, iid, theC, conn=None, **kwargs):
+
+    image = conn.getObject("Image", iid)
+
+    theZ = int(request.REQUEST.get('theZ', 0))
+    theT = int(request.REQUEST.get('theT', 0))
+    theC = int(theC)
+    proj = request.REQUEST.get('p', None) == 'intmax'
+
+    ch = image.getChannels()[theC]
+    wMin = ch.getWindowMin()
+    wMax = ch.getWindowMax()
+
+    if request.REQUEST.get('data') == 'numpy':
+        print 'numpy'
+        # get plane and calculate histogram with Numpy...
+        plane = image.getPrimaryPixels().getPlane(theZ, theC, theT)
+        histogram, edges = numpy.histogram(plane, bins=256, range=(wMin, wMax))
+        histogram = [d for d in histogram]
+    else:
+        print 'PIL'
+        # OR... Render Image (single channel white) and Use PIL for histogram
+        image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+        if proj:
+            image.setProjection('intmax')
+        pilImg = image.renderImage(theZ, theT)
+        rgbHistogram = pilImg.histogram()
+        hsize = len(rgbHistogram) / 3
+        histogram = rgbHistogram[0:hsize]
+
+    return HttpJsonResponse(histogram)
 
 
 class ExamplesView(generic.TemplateView):

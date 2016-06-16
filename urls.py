@@ -86,4 +86,11 @@ urlpatterns = patterns(
     # in a Plate or Dataset (e.g. to compare FS)
     url(r'^render_performance/(?P<obj_type>[a-z]+)/(?P<id>[0-9]+)/',
         views.render_performance, name='webtest_render_performance'),
+
+    url(r'^histogram_viewer/(?:(?P<iid>[0-9]+)/)?$', views.histogram_viewer,
+        name="webtest_histogram_viewer"),
+
+    url(r'^histogram_data/(?P<iid>[0-9]+)/channel/(?P<theC>[0-9]+)/',
+        views.histogram_data,
+        name="webtest_histogram_data"),
 )

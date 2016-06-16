@@ -4,7 +4,8 @@
 <h1>{{ dataset.getName }}</h1>
 
 {% for i in dataset.listChildren %}
-    <div style="float:left; padding:10px">
+    <div style="float:left; padding:100px">
+    	<hr>
         <img src="{% url 'webgateway.views.render_thumbnail' i.id %}" />
         {{ i.getName }}
     </div>
