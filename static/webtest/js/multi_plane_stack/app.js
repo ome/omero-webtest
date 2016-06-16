@@ -10,7 +10,8 @@ var currT = 0;
 var currZoom = 100;
 
 var canvas = document.getElementById("canvas"),
-    ctx;
+    ctx,
+    hiddencanvas = document.getElementById("hiddencanvas");
 var zslider_el = document.getElementById('zslider');
 var theZ_el = document.getElementById('theZ');
 var tslider_el = document.getElementById('tslider');
@@ -28,38 +29,56 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 
-var computeFrame = function(img, x, y, width, height, ctx, canvX, canvY, canvW, canvH) {
-    var hiddencanvas = document.getElementById("hiddencanvas");
+var getData = function(img, x, y, width, height) {
     hiddencanvas.width = width;
     hiddencanvas.height = height;
     var ctx1 = hiddencanvas.getContext("2d");
     ctx1.drawImage(img, x, y, width, height, 0, 0, width, height);
-
-    var frame = ctx1.getImageData(0, 0, width, height);
-    var target = ctx.getImageData(canvX, canvY, canvW, canvH);
-    console.log("frame", frame.data.length, "target", target.data.length);
-    var l = frame.data.length / 4;
-
-    // for each colour we check value in target image and pick
-    // the greatest
-
-    var r, g, b, t_r, t_g, t_b;
-    for (var i = 0; i < l; i++) {
-        r = frame.data[i * 4 + 0];
-        t_r = target.data[i * 4 + 0];
-        frame.data[i * 4 + 0] = Math.max(r, t_r);
-        g = frame.data[i * 4 + 1];
-        t_g = target.data[i * 4 + 1];
-        frame.data[i * 4 + 1] = Math.max(g, t_g);
-        b = frame.data[i * 4 + 2];
-        t_b = target.data[i * 4 + 2];
-        frame.data[i * 4 + 2] = Math.max(b, t_b);
-        // if (g > 100 && r > 100 && b < 43)
-        //   frame.data[i * 4 + 3] = 0;
-    }
-    this.ctx.putImageData(frame, canvX, canvY);
+    var data = ctx1.getImageData(0, 0, width, height);
+    return data;
 };
 
+
+var maxIntensityProjection = function(imgDataList) {
+
+    var firstPlane = imgDataList[0],
+        plane,
+        l = firstPlane.data.length / 4;
+    var r, red, g, green, b, blue;
+    console.log("maxIntensityProjection", firstPlane.data.length);
+    // iterate through each plane...
+    for (var p=1; p<imgDataList.length; p++) {
+        plane = imgDataList[p];
+        console.log("plane", plane.data.length);
+        // Go through each pixel, saving max to firstPlane
+        for (var i = 0; i < l; i++) {
+            r = firstPlane.data[i * 4 + 0];
+            red = plane.data[i * 4 + 0];
+            firstPlane.data[i * 4 + 0] = Math.max(r, red);
+            g = firstPlane.data[i * 4 + 1];
+            green = plane.data[i * 4 + 1];
+            firstPlane.data[i * 4 + 1] = Math.max(g, green);
+            b = firstPlane.data[i * 4 + 2];
+            blue = plane.data[i * 4 + 2];
+            firstPlane.data[i * 4 + 2] = Math.max(b, blue);
+        }
+    }
+    return firstPlane;
+};
+
+
+var getImgAndCoords = function(theZ, theT) {
+    var s;
+    console.log('finding loader...');
+    for (var i=0; i<imageLoaders.length; i++) {
+        if (imageLoaders[i].containsPlane(theZ, theT)) {
+            console.log(' ...using loader:', i);
+            s = imageLoaders[i].getImgAndCoords(theZ, theT);
+            break;
+        }
+    }
+    return s;
+};
 
 var drawPlane = function(data) {
 
@@ -80,29 +99,42 @@ var drawPlane = function(data) {
     canvW = sizeX * zoom;
     canvH = sizeY * zoom;
 
-    var s;
-    console.log('finding loader...');
-    for (var i=0; i<imageLoaders.length; i++) {
-        if (imageLoaders[i].containsPlane(theZ, theT)) {
-            console.log(' ...using loader:', i);
-            s = imageLoaders[i].getImgAndCoords(theZ, theT);
-            break;
-        }
-    }
-    // ctx.fillStyle = "rgb(0,0,0)";
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (!s) {
-        console.log("Failed to find Loader");
-        return;
-    }
-    // var s = i.getImgAndCoords(z, 0);
-    console.log(canvas.width, 'canvas.width');
+    ctx.fillStyle = "rgb(100,100,100)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     canvX = (canvas.width - canvW) / 2;
-    console.log('canvX', canvX);
     canvY = (canvas.height - canvH) / 2;
-    // ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
-    computeFrame(s.img, s.x, s.y, s.width, s.height, ctx, canvX, canvY, canvW, canvH);
+
+    // Handle single Time-point...
+    var tenvelope = parseInt(document.getElementById('tenvelope').value, 10);
+    var s;
+    if (tenvelope == 1) {
+        s = getImgAndCoords(theZ, theT);
+        if (s) {
+            // Draw plane from source image onto canvas, scaling etc.
+            ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
+        }
+    } else {
+        // Otherwise - T-projection...
+        var maxPlane;
+        var t1 = Math.max(0, theT - tenvelope),
+            t2 = Math.min(sizeT, theT + tenvelope);
+        for(var t=t1; t<=t2; t++) {
+            s = getImgAndCoords(theZ, t);
+            if (!s) continue;
+            var d = getData(s.img, s.x, s.y, s.width, s.height);
+            if (!maxPlane) {
+                maxPlane = d;
+            } else {
+                maxPlane = maxIntensityProjection([maxPlane, d]);
+            }
+        }
+        // Put Data onto temp canvas at 100%, then draw onto full canvas to scale!
+        var ctx1 = hiddencanvas.getContext("2d");
+        ctx1.putImageData(maxPlane, 0, 0);
+        ctx.drawImage(hiddencanvas, 0, 0, hiddencanvas.width, hiddencanvas.height, canvX, canvY, canvW, canvH);
+    }
 };
 
 window.onresize = function(){
