@@ -8,10 +8,13 @@ var sizeT;
 var currZ = 0;
 var currT = 0;
 var currZoom = 100;
+var imageChannels;
+var sliderValues = [];
 
 var canvas = document.getElementById("canvas"),
     ctx,
     hiddencanvas = document.getElementById("hiddencanvas");
+var ctx1 = hiddencanvas.getContext("2d");
 var zslider_el = document.getElementById('zslider');
 var theZ_el = document.getElementById('theZ');
 var tslider_el = document.getElementById('tslider');
@@ -45,11 +48,9 @@ var maxIntensityProjection = function(imgDataList) {
         plane,
         l = firstPlane.data.length / 4;
     var r, red, g, green, b, blue;
-    console.log("maxIntensityProjection", firstPlane.data.length);
     // iterate through each plane...
     for (var p=1; p<imgDataList.length; p++) {
         plane = imgDataList[p];
-        console.log("plane", plane.data.length);
         // Go through each pixel, saving max to firstPlane
         for (var i = 0; i < l; i++) {
             r = firstPlane.data[i * 4 + 0];
@@ -80,9 +81,38 @@ var getImgAndCoords = function(theZ, theT) {
     return s;
 };
 
+// apply rendering settings to plane
+var renderPlane = function(plane, channels) {
+    // channels is E.g. {'red': start, end, newStart, newEnd}
+    // Go through each pixel, saving max to firstPlane
+    console.log('renderPlane', channels);
+    var p = plane.data;
+    var l = p.length / 4;
+    var r = channels.red,
+        g = channels.green,
+        b = channels.blue;
+    var fRed, fGreen, fBlue;
+    if (r) {
+        fRed = function(red) {
+            // input value is a value between 0 - 255 where
+            // 0 == start and 255 is end
+            var input = ((red/255) * (r.end - r.start)) + r.start;
+            return ((input - r.newStart) / (r.newEnd - r.newStart)) * 255;
+        };
+    } else {
+        fRed = function(red) {return red;};
+    }
+    for (var i = 0; i < l; i++) {
+        red = fRed(plane.data[i * 4 + 0]);
+        plane.data[i * 4 + 0] = red;
+        green = plane.data[i * 4 + 1];
+        blue = plane.data[i * 4 + 2];
+    }
+    return plane;
+};
+
 var drawPlane = function(data) {
 
-    console.log('drawPlane', data);
     data = data || {};
     zoom = data.zoom !== undefined ? data.zoom : currZoom;
     theZ = data.theZ !== undefined ? data.theZ : currZ;
@@ -93,7 +123,6 @@ var drawPlane = function(data) {
 
     zoom_el.innerHTML = currZoom;
 
-    console.log('drawPlane(), theZ, theT, zoom', theZ, theT, zoom);
     zoom = zoom/100;
 
     canvW = sizeX * zoom;
@@ -112,8 +141,20 @@ var drawPlane = function(data) {
     if (tenvelope == 1) {
         s = getImgAndCoords(theZ, theT);
         if (s) {
+            var plane = getData(s.img, s.x, s.y, s.width, s.height);
             // Draw plane from source image onto canvas, scaling etc.
-            ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
+            
+            var redCh = imageChannels[1].window;
+            console.log('sliderValues', sliderValues);
+            var newV = sliderValues[1];
+            var renderRed = {'start': redCh.start, 'end': redCh.end, 'newStart': newV[0], 'newEnd': newV[1]};
+            
+            plane = renderPlane(plane, {'red': renderRed});
+            // ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
+            // var ctx1 = hiddencanvas.getContext("2d");
+            ctx1.putImageData(plane, 0, 0);
+            ctx.drawImage(hiddencanvas, 0, 0, hiddencanvas.width, hiddencanvas.height, canvX, canvY, canvW, canvH);
+    
         }
     } else {
         // Otherwise - T-projection...
@@ -127,11 +168,11 @@ var drawPlane = function(data) {
             if (!maxPlane) {
                 maxPlane = d;
             } else {
+                // accumulate current plane with maxPlane
                 maxPlane = maxIntensityProjection([maxPlane, d]);
             }
         }
         // Put Data onto temp canvas at 100%, then draw onto full canvas to scale!
-        var ctx1 = hiddencanvas.getContext("2d");
         ctx1.putImageData(maxPlane, 0, 0);
         ctx.drawImage(hiddencanvas, 0, 0, hiddencanvas.width, hiddencanvas.height, canvX, canvY, canvW, canvH);
     }
@@ -188,17 +229,21 @@ var loaderCallback = function(msg) {
 
 var buildChannelSliders = function(channels) {
 
-    console.log(channels);
+    imageChannels = channels;
 
     var _getSlideCb = function(idx, startEnd) {
         return function() {
             if (startEnd === 'start') {
                 this.previousSibling.textContent = this.value;
+                sliderValues[idx][0] = this.value;
+                drawPlane();
             } else {
                 this.nextSibling.textContent = this.value;
+                sliderValues[idx][1] = this.value;
+                drawPlane();
             }
-        }
-    }
+        };
+    };
 
     var channelPanes = document.querySelectorAll('.range-slider');
     // each channelPane has 2 sliders - one for start, one for end
@@ -214,6 +259,7 @@ var buildChannelSliders = function(channels) {
         element.style.background = '#' + ch.color;
         // set min & max of both sliders
         var win = ch.window;
+        sliderValues.push([win.start, win.end]);
         [].forEach.call(element.childNodes, function(child, i) {
             if (child.nodeName === 'INPUT') {
                 child.setAttribute('min', win.min);
@@ -277,7 +323,6 @@ var loadImageStack = function(imgData) {
 
     loadedCount = 0;
     loadTime = new Date();
-    console.log('sizeT', sizeT);
     for (var t=0; tStart<sizeT; t++) {
         if (sizeZ === 1) {
             tStop = tStart + planesPerLoader;
@@ -286,7 +331,6 @@ var loadImageStack = function(imgData) {
         }
         for (var z=0; zStop<=sizeZ; z++) {
             zStop = zStart + planesPerLoader;
-            console.log('creating loader zStart, zStop', zStart, Math.min(zStop, sizeZ), tStart, Math.min(tStop, sizeT-1));
             img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY, zStart, Math.min(zStop, sizeZ-1), tStart, Math.min(tStop, sizeT-1), loaderCallback);
             imageLoaders.push(img);
             zStart += planesPerLoader + 1;

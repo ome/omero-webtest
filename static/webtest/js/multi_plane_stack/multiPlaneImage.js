@@ -50,8 +50,6 @@ var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tS
     };
 
     this.containsPlane = function(z, t) {
-        console.log('zStart, zStop, tStart, tStop', zStart, zStop, tStart, tStop,
-            (z < zStart), (z > zStop), (t < tStart), (t > tStop));
         if (z < zStart) return false;
         if (z > zStop) return false;
         if (t < tStart) return false;
