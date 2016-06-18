@@ -186,6 +186,56 @@ var loaderCallback = function(msg) {
 };
 
 
+var buildChannelSliders = function(channels) {
+
+    console.log(channels);
+
+    var _getSlideCb = function(idx, startEnd) {
+        return function() {
+            if (startEnd === 'start') {
+                this.previousSibling.textContent = this.value;
+            } else {
+                this.nextSibling.textContent = this.value;
+            }
+        }
+    }
+
+    var channelPanes = document.querySelectorAll('.range-slider');
+    // each channelPane has 2 sliders - one for start, one for end
+    [].forEach.call(channelPanes, function(element, chIdx) {
+        // we may have more html panes than image channels...
+        // ...simply hide any we don't need!
+        if (chIdx >= channels.length) {
+            element.style.display = 'none';
+            return;
+        }
+        var ch = channels[chIdx];
+
+        element.style.background = '#' + ch.color;
+        // set min & max of both sliders
+        var win = ch.window;
+        [].forEach.call(element.childNodes, function(child, i) {
+            if (child.nodeName === 'INPUT') {
+                child.setAttribute('min', win.min);
+                child.setAttribute('max', win.max);
+                if (child.className === 'chStart') {
+                    child.value = win.start;
+                    child.oninput = _getSlideCb(chIdx, 'start');
+                }
+                if (child.className === 'chEnd') {
+                    child.value = win.end;
+                    child.oninput = _getSlideCb(chIdx, 'end');
+                }
+            } else if (child.className === 'chStartTxt') {
+                child.textContent = win.start;
+            } else if (child.className === 'chEndTxt') {
+                child.textContent = win.end;
+            }
+        });
+    });
+};
+
+
 var loadImageStack = function(imgData) {
 
     sizeX = imgData.size.width;
@@ -195,7 +245,9 @@ var loadImageStack = function(imgData) {
     currZ = imgData.rdefs.defaultZ;
     currT = imgData.rdefs.defaultT;
 
-    console.log('currZ', currZ);
+    buildChannelSliders(imgData.channels);
+
+    // Z and T sliders...
     if (sizeZ === 1) {
         zslider_el.setAttribute('disabled', true);
     } else {
