@@ -28,6 +28,7 @@ var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tS
     };
 
     this.load = function() {
+        console.log('loading... ', getSrcUrl());
         status = "loading";
         img.src = getSrcUrl();
     };
