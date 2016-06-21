@@ -48,9 +48,8 @@
 
 
         var renderPlane = function(plane, loadedChannels, channels) {
-            // channels is E.g. {'red': start, end, newStart, newEnd}
-            // Go through each pixel, saving max to firstPlane
-            // console.log('renderPlane', channels);
+            // plane is 0-255 already rendered according to 'loadedChannels'
+            // we want to re-render to current 'channels'
             var p = plane.data;
             var l = p.length / 4;
             var r = channels.red,
@@ -59,35 +58,29 @@
             var fRed = function(v) {return v;},
                 fGreen = function(v) {return v;},
                 fBlue = function(v) {return v;};
+            // for each channel, we map plane pixel intensity back to
+            // the original raw pixel value, and then map that to
+            // the new rendering settings
             loadedChannels.forEach(function(lc, i){
                 var start = lc.window.start,
                     end = lc.window.end,
                     newStart = channels[i].window.start,
                     newEnd = channels[i].window.end,
                     color = lc.color;
-                // console.log('start, end, newStart, newEnd', start, end, newStart, newEnd);
                 if (start !== newStart || end !== newEnd) {
                     var f = function(red) {
-                        // input value is a value between 0 - 255 where
+                        // raw pixel value is a value between 0 - 255 where
                         // 0 == start and 255 is end
-                        var input = ((red/255) * (end - start)) + start;
-                        return ((input - newStart) / (newEnd - newStart)) * 255;
+                        var raw = ((red/255) * (end - start)) + start;
+                        return ((raw - newStart) / (newEnd - newStart)) * 255;
                     };
+                    // assign this mapping to the correct function/channel...
                     if (color === 'FF0000') {fRed = f;}
                     else if (color === '00FF00') {fGreen = f;}
                     else if (color === '0000FF') {fBlue = f;}
                 }
             });
-            // if (r) {
-            //     fRed = function(red) {
-            //         // input value is a value between 0 - 255 where
-            //         // 0 == start and 255 is end
-            //         var input = ((red/255) * (r.end - r.start)) + r.start;
-            //         return ((input - r.newStart) / (r.newEnd - r.newStart)) * 255;
-            //     };
-            // } else {
-            //     fRed = function(red) {return red;};
-            // }
+            // ...finally apply functions to every red/green/blue pixel
             for (var i = 0; i < l; i++) {
                 red = fRed(plane.data[i * 4 + 0]);
                 plane.data[i * 4 + 0] = red;
@@ -99,33 +92,27 @@
             return plane;
         };
 
+
+        // The main rendering function - to get data from the store, manipulate
+        // as needed and paint it onto the main canvas
         var drawPlane = function() {
-
-            // data = data || {};
-            // zoom = data.zoom !== undefined ? data.zoom : currZoom;
-            // theZ = data.theZ !== undefined ? data.theZ : currZ;
-            // theT = data.theT !== undefined ? data.theT : currT;
-            // currZ = theZ;
-            // currT = theT;
-            // currZoom = zoom;
-
-            // zoom_el.innerHTML = currZoom;
 
             var theZ = model.get('theZ'),
                 theT = model.get('theT'),
                 sizeX = model.get('sizeX'),
                 sizeY = model.get('sizeY'),
+                sizeT = model.get('sizeT'),
                 zoom = model.get('zoom'),
                 channels = model.get('channels'),
                 loadedChannels = model.get('loadedChannels');
-            console.log('drawPlane', zoom, canvas.width, canvas.height);
 
             zoom = zoom/100;
 
             var canvW = sizeX * zoom;
             var canvH = sizeY * zoom;
-            console.log('canvW, canvH', canvW, canvH);
 
+            tempCanvas.width = sizeX;
+            tempCanvas.height = sizeY;
 
             ctx.fillStyle = "rgb(100,100,100)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -135,47 +122,38 @@
 
             // Handle single Time-point...
             var tenvelope = parseInt(document.getElementById('tenvelope').value, 10);
-            var s;
+            var s, plane;
             if (tenvelope == 1) {
-                // s = imageDataManager.getImgAndCoords(theZ, theT);
-                // if (s) {
-                var plane = imageDataManager.getData(theZ, theT);
-                // Draw plane from source image onto canvas, scaling etc.
-                if (plane) {
-                    // var redCh = loadedChannels[1].window;
-                    // var newCh = channels[1].window;
-                    // var renderRed = {'start': redCh.start, 'end': redCh.end,
-                    //     'newStart': newCh.start, 'newEnd': newCh.end};
-                    
-                    // plane = renderPlane(plane, {'red': renderRed});
-                    plane = renderPlane(plane, loadedChannels, channels);
-
-                    // ctx.drawImage(s.img, s.x, s.y, s.width, s.height, canvX, canvY, canvW, canvH);
-                    // var ctx1 = hiddencanvas.getContext("2d");
-                    tempCanvas.width = sizeX;
-                    tempCanvas.height = sizeY;
-                    tempCtx.putImageData(plane, 0, 0);
-                    ctx.drawImage(tempCanvas, 0, 0, sizeX, sizeY, canvX, canvY, canvW, canvH);
-                }
+                plane = imageDataManager.getData(theZ, theT);
             } else {
                 // Otherwise - T-projection...
                 var maxPlane;
                 var t1 = Math.max(0, theT - tenvelope),
                     t2 = Math.min(sizeT, theT + tenvelope);
+                console.log('t1, t2', t1, t2);
+                // plane = imageDataManager.getData(theZ, theT);
                 for(var t=t1; t<=t2; t++) {
-                    s = getImgAndCoords(theZ, t);
-                    if (!s) continue;
-                    var d = getData(s.img, s.x, s.y, s.width, s.height);
+                    console.log('theZ t', theZ, t);
+                    plane = imageDataManager.getData(theZ, t);
+                    if (!plane) continue;
+                    // first time through loop - start with single plane...
                     if (!maxPlane) {
-                        maxPlane = d;
+                        maxPlane = plane;
                     } else {
-                        // accumulate current plane with maxPlane
-                        maxPlane = maxIntensityProjection([maxPlane, d]);
+                        // ... then accumulate other planes with maxPlane
+                        // this way, we never have a whole stack of planes in hand
+                        maxPlane = maxIntensityProjection([maxPlane, plane]);
                     }
                 }
+                plane = maxPlane;
+            }
+
+            if (plane) {
+                // apply client-side rendering settings
+                plane = renderPlane(plane, loadedChannels, channels);
                 // Put Data onto temp canvas at 100%, then draw onto full canvas to scale!
-                ctx1.putImageData(maxPlane, 0, 0);
-                ctx.drawImage(hiddencanvas, 0, 0, hiddencanvas.width, hiddencanvas.height, canvX, canvY, canvW, canvH);
+                tempCtx.putImageData(plane, 0, 0);
+                ctx.drawImage(tempCanvas, 0, 0, sizeX, sizeY, canvX, canvY, canvW, canvH);
             }
         };
 
