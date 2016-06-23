@@ -11,6 +11,7 @@
         var zoomSlider_el = document.getElementById('zoomslider');
         var zoom_el = document.getElementById('zoom');
         var status_el = document.getElementById('status');
+        var refreshImage_el = document.getElementById('refreshImage');
 
 
         // Handle Z, T and zoom sliders
@@ -25,6 +26,11 @@
         zoomSlider_el.addEventListener('input', function(){
             zoom_el.innerHTML = this.value;
             model.set({'zoom': parseInt(this.value, 10)});
+        });
+
+        // Button to reload images
+        refreshImage_el.addEventListener('click', function(){
+            model.refreshImage();
         });
 
 

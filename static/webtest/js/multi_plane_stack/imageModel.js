@@ -43,6 +43,23 @@ var ImageModel = Backbone.Model.extend({
         }.bind(this));
     },
 
+    refreshImage: function() {
+
+        // replace 'loadedChannels' with 'channels' 
+        var chs = this.get('channels').map(function(ch){
+            return _.extend({}, ch);
+        });
+        this.set('loadedChannels', chs);
+        this.trigger('refreshImage');
+    },
+
+    getQueryString: function() {
+        var cStrings = model.get('channels').map(function(c, i){
+            return 1+i + "|" + c.window.start + ":" + c.window.end + "$" + c.color;
+        });
+        return cStrings.join(",");
+    },
+
     setChannelStart: function(idx, start) {
         this.setChannelWindow(idx, start);
     },

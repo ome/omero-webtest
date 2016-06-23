@@ -20,6 +20,7 @@ var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tS
         if (tStart !== tStop) {
             url += '-' + tStop;
         }
+        url += '&c=' + rdef;
         return url;
     };
 

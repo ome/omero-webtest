@@ -63,7 +63,8 @@
                 sizeT = model.get('sizeT'),
                 currZ = model.get('theZ'),
                 currT = model.get('theT'),
-                imageId = model.get('id');
+                imageId = model.get('id'),
+                cQuery = model.getQueryString();
      
             // ctx = canvas.getContext("2d");
             // ctx.fillStyle = "rgb(200,200,200)";
@@ -77,6 +78,7 @@
                 planesPerLoader = 10;
 
             loadedCount = 0;
+            imageLoaders = [];
             loadTime = new Date();
             console.log('t', tStart, sizeT, 'z', zStart, sizeZ);
             for (var t=0; tStart<sizeT; t++) {
@@ -90,7 +92,8 @@
                     img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY,
                         zStart, Math.min(zStop, sizeZ-1),
                         tStart, Math.min(tStop, sizeT-1),
-                        loaderCallback);
+                        loaderCallback,
+                        cQuery);
                     imageLoaders.push(img);
                     zStart += planesPerLoader + 1;
                 }
@@ -100,6 +103,9 @@
             }
         };
 
+        model.on('refreshImage', function(){
+            loadImageStack();
+        });
 
         model.on('change:id', function() {
             loadImageStack();
