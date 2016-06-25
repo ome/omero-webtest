@@ -2,7 +2,7 @@
 
 (function(){
 
-    window.UiControls = function(model) {
+    window.UiControls = function(model, imageDataManager) {
 
         var zslider_el = document.getElementById('zslider');
         var theZ_el = document.getElementById('theZ');
@@ -12,7 +12,15 @@
         var zoom_el = document.getElementById('zoom');
         var status_el = document.getElementById('status');
         var refreshImage_el = document.getElementById('refreshImage');
-
+        var canvas = document.getElementById('tSliderCanvas'),
+            ctx = canvas.getContext("2d");
+        var thumbSize = 50;
+        var canvas2 = document.getElementById('tSliderCanvas2'),
+            ctx2 = canvas2.getContext("2d");
+        canvas.width = window.innerWidth * 0.9;
+        canvas.height = thumbSize * 2;
+        canvas2.width = window.innerWidth * 0.9;
+        canvas2.height = thumbSize * 2;
 
         // Handle Z, T and zoom sliders
         zslider_el.addEventListener('input', function(){
@@ -33,6 +41,95 @@
             model.refreshImage();
         });
 
+
+        var drawTsliderPlanes = function(extraT) {
+
+            var theZ = model.get('theZ'),
+                theT = model.get('theT'),
+                sizeT = model.get('sizeT');
+
+            // draw series of frames
+            var src, xPos;
+            var thumbSpacing = (canvas.width - thumbSize) / sizeT;
+            var thumbsCount = canvas.width / thumbSize,
+                tStep = parseInt(sizeT/thumbsCount, 10);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for(var t=0; t<sizeT; t+=tStep) {
+                src = imageDataManager.getImgAndCoords(theZ, t);
+                xPos = thumbSpacing * t;
+                if (src) {
+                    ctx.drawImage(src.img, src.x, src.y, src.width, src.height, xPos, 25, thumbSize, thumbSize);
+                }
+            }
+            drawTsliderPlaneT();
+        };
+
+        var drawTsliderPlaneT = function(zoomedT) {
+            var theZ = model.get('theZ'),
+                theT = model.get('theT'),
+                sizeT = model.get('sizeT');
+
+            var thumbSpacing = (canvas.width - thumbSize) / sizeT;            
+            ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+            // now draw actual T-position
+            var highlightPlane = function(planeT, zoom) {
+                var thumbZoom = thumbSize * zoom;
+                var offset = (thumbSize - thumbZoom) / 2;
+                var src = imageDataManager.getImgAndCoords(theZ, planeT);
+                var xPos = (thumbSpacing * planeT) + offset;
+                if (src) {
+                    ctx2.drawImage(src.img, src.x, src.y, src.width, src.height, xPos, offset + 25, thumbZoom, thumbZoom);
+                }
+                ctx2.strokeStyle = "rgb(255,255,200)";
+                ctx2.strokeRect(xPos, offset + 25, thumbZoom, thumbZoom);
+            };
+            highlightPlane(theT, 1);
+            if (zoomedT !== undefined) {
+                highlightPlane(zoomedT, 1.2);
+            }
+        };
+
+        canvas2.addEventListener('mousemove', function(event){
+            var offset = canvas.getBoundingClientRect();
+            var mouseX = event.clientX - offset.left;
+            var theT = model.get('sizeT') * mouseX / (canvas.width - thumbSize);
+            theT = parseInt(Math.round(theT), 10);
+            drawTsliderPlaneT(theT);
+            // model.set('theT', theT);
+        });
+        canvas2.addEventListener('click', function(event){
+            var offset = canvas.getBoundingClientRect();
+            var mouseX = event.clientX - offset.left;
+            var theT = model.get('sizeT') * mouseX / (canvas.width - thumbSize);
+            theT = parseInt(Math.round(theT), 10);
+            // drawTsliderPlanes(theT);
+            model.set('theT', theT);
+        });
+
+        model.on("loaded", function(msg){
+            drawTsliderPlanes();
+        });
+
+        model.on('change:theZ', function(event, theT, model){
+            drawTsliderPlanes();
+        });
+
+        model.on('change:theT', function(event, theT, model){
+            drawTsliderPlaneT();
+        });
+
+        addWheelListener(canvas2, function( e ) {
+            e.preventDefault();
+            var prevT = model.get('theT'),
+                sizeT = model.get('sizeT');
+
+            var currT = prevT + e.deltaY;
+            currT = Math.max(0, currT);
+            currT = Math.min(sizeT-1, currT);
+            if (prevT !== currT) {
+                model.set('theT', currT);
+            }
+        });
 
         var buildChannelSliders = function(channels) {
 

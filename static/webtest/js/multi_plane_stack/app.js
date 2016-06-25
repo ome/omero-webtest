@@ -288,11 +288,10 @@ if (!imageId) {
 }
 
 var model = new ImageModel();
-
-
-new UiControls(model);
 var manager = new ImageDataManager(model);
+
 new ImageCanvas(model, manager);
+new UiControls(model, manager);
 
 model.loadImage(imageId);
 

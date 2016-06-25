@@ -14,10 +14,8 @@
 
         this.getImgAndCoords = function(theZ, theT) {
             var s;
-            console.log('finding loader...');
             for (var i=0; i<imageLoaders.length; i++) {
                 if (imageLoaders[i].containsPlane(theZ, theT)) {
-                    console.log(' ...using loader:', i);
                     s = imageLoaders[i].getImgAndCoords(theZ, theT);
                     break;
                 }

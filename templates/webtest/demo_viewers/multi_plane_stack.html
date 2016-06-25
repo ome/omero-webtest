@@ -181,7 +181,9 @@
         </div>
 
         <div class="centerPanel" style="bottom: 30px;">
-            <div class="controlPanel" style="width: 500px; height: 35px">
+            <div class="controlPanel" style="width: 95%; height: 50px; position: relative; background: black">
+                <canvas id="tSliderCanvas" style="position: absolute; top: -25px; left: 10px; z-index: -1"></canvas>
+                <canvas id="tSliderCanvas2" style="position: absolute; top: -25px; left: 10px; z-index: -1"></canvas>
                 T:
                 <input id="tslider" type="range" min='0' />
                 <span id='theT'>0</span>
