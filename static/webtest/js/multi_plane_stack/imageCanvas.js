@@ -130,10 +130,8 @@
                 var maxPlane;
                 var t1 = Math.max(0, theT - tenvelope),
                     t2 = Math.min(sizeT, theT + tenvelope);
-                console.log('t1, t2', t1, t2);
                 // plane = imageDataManager.getData(theZ, theT);
                 for(var t=t1; t<=t2; t++) {
-                    console.log('theZ t', theZ, t);
                     plane = imageDataManager.getData(theZ, t);
                     if (!plane) continue;
                     // first time through loop - start with single plane...

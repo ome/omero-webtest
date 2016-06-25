@@ -69,7 +69,7 @@
                 theT = model.get('theT'),
                 sizeT = model.get('sizeT');
 
-            var thumbSpacing = (canvas.width - thumbSize) / sizeT;            
+            var thumbSpacing = (canvas.width - thumbSize) / sizeT;
             ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
             // now draw actual T-position
             var highlightPlane = function(planeT, zoom) {
@@ -95,25 +95,31 @@
             var theT = model.get('sizeT') * mouseX / (canvas.width - thumbSize);
             theT = parseInt(Math.round(theT), 10);
             drawTsliderPlaneT(theT);
-            // model.set('theT', theT);
         });
         canvas2.addEventListener('click', function(event){
             var offset = canvas.getBoundingClientRect();
             var mouseX = event.clientX - offset.left;
             var theT = model.get('sizeT') * mouseX / (canvas.width - thumbSize);
             theT = parseInt(Math.round(theT), 10);
-            // drawTsliderPlanes(theT);
             model.set('theT', theT);
         });
 
+        // This will simply hide mouse-over zoomed plane
+        canvas2.addEventListener('mouseout', function(){
+            drawTsliderPlaneT();
+        });
+
+        // Re-draw ALL Tplanes to show loading progress
         model.on("loaded", function(msg){
             drawTsliderPlanes();
         });
 
+        // Re-draw ALL Tplanes for the new Z
         model.on('change:theZ', function(event, theT, model){
             drawTsliderPlanes();
         });
 
+        // We ONLY re-draw theT plane
         model.on('change:theT', function(event, theT, model){
             drawTsliderPlaneT();
         });
