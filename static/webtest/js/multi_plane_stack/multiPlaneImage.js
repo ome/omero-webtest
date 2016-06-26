@@ -12,7 +12,7 @@ var MultiPlaneImage = function(imageId, baseUrl, sizeX, sizeY, zStart, zStop, tS
     };
 
     var getSrcUrl = function() {
-        var url = baseUrl + '/render_multi_planes/' + imageId + '/?theZ=' + zStart;
+        var url = baseUrl + 'render_multi_planes/' + imageId + '/?theZ=' + zStart;
         if (zStop !== zStart) {
             url += '-' + zStop;
         }

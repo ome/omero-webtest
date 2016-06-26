@@ -12,6 +12,7 @@
         var zoom_el = document.getElementById('zoom');
         var status_el = document.getElementById('status');
         var refreshImage_el = document.getElementById('refreshImage');
+        var sliderValues = [];
         var canvas = document.getElementById('tSliderCanvas'),
             ctx = canvas.getContext("2d");
         var thumbSize = 50;

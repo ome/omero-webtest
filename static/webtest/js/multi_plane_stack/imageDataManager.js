@@ -87,7 +87,7 @@
                 }
                 for (var z=0; zStop<=sizeZ; z++) {
                     zStop = zStart + planesPerLoader;
-                    img = new MultiPlaneImage(imageId, '/webtest', sizeX, sizeY,
+                    img = new MultiPlaneImage(imageId, WEBTEST, sizeX, sizeY,
                         zStart, Math.min(zStop, sizeZ-1),
                         tStart, Math.min(tStop, sizeT-1),
                         loaderCallback,

@@ -25,7 +25,7 @@ var ImageModel = Backbone.Model.extend({
     },
 
     loadImage: function(imgId) {
-        getJSON("/webgateway/imgData/" + imgId + "/", function(data){
+        getJSON(WEBGATEWAY + "imgData/" + imgId + "/", function(data){
 
             data.theT = data.rdefs.defaultT;
             data.theZ = data.rdefs.defaultZ;
