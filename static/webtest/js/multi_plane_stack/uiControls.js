@@ -54,6 +54,8 @@
             var thumbSpacing = (canvas.width - thumbSize) / sizeT;
             var thumbsCount = canvas.width / thumbSize,
                 tStep = parseInt(sizeT/thumbsCount, 10);
+            // Make sure tStep is not 0 when sizeT is small
+            tStep = Math.max(tStep, 1);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for(var t=0; t<sizeT; t+=tStep) {
                 src = imageDataManager.getImgAndCoords(theZ, t);
