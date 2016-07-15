@@ -12,6 +12,9 @@
         var zoom_el = document.getElementById('zoom');
         var status_el = document.getElementById('status');
         var refreshImage_el = document.getElementById('refreshImage');
+        var playMovie_el = document.getElementById('playMovie');
+        var frameDelay = 200;  //millisecs
+        var framesPerSec_el = document.getElementById('framesPerSec');
         var sliderValues = [];
         var canvas = document.getElementById('tSliderCanvas'),
             ctx = canvas.getContext("2d");
@@ -106,6 +109,27 @@
             theT = parseInt(Math.round(theT), 10);
             model.set('theT', theT);
         });
+
+        framesPerSec_el.addEventListener('input', function(event){
+            frameDelay = parseInt(1000/this.value, 10);
+        });
+
+        playMovie_el.addEventListener('click', function(event) {
+            if (event.target.checked) {
+                playMovie();
+            }
+        });
+
+        var playMovie = function() {
+            if (playMovie_el.checked) {
+                var newT = model.get('theT') + 1;
+                if (newT == model.get('sizeT')) {
+                    newT = 0;
+                }
+                model.set('theT', newT);
+                setTimeout(playMovie, frameDelay);
+            }
+        };
 
         // This will simply hide mouse-over zoomed plane
         canvas2.addEventListener('mouseout', function(){

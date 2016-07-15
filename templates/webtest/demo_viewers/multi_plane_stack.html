@@ -122,6 +122,8 @@
             var WEBGATEWAY = "{% url 'webgateway' %}";
             var WEBTEST = "{% url 'webtest_index' %}";
         </script>
+
+        {% include "webgateway/base/includes/script_src_jquery.html" %}
     </head>
 
     <body>
@@ -189,18 +191,24 @@
             <div class="controlPanel" style="width: 95%; height: 50px; position: relative; background: black">
                 <canvas id="tSliderCanvas" style="position: absolute; top: -25px; left: 10px; z-index: -1"></canvas>
                 <canvas id="tSliderCanvas2" style="position: absolute; top: -25px; left: 10px; z-index: -1"></canvas>
-                T:
-                <input id="tslider" type="range" min='0' />
-                <span id='theT'>0</span>
-                Envelope
-                <select id="tenvelope">
-                    <option value="1">1 t</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="5">5</option>
-                    <option value="7">7</option>
-                    <option value="10">10</option>
-                </select>
+                <div style="background: white; width: 520px">
+                    T:
+                    <input id="tslider" type="range" min='0' />
+                    <span id='theT'>0</span>
+                    Envelope
+                    <select id="tenvelope">
+                        <option value="1">1 t</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="10">10</option>
+                    </select>
+                    Play
+                    <input id="playMovie" type="checkbox">
+                    FPS
+                    <input id="framesPerSec" type="range" min='1' max='50'>
+                </div>
             </div>
         </div>
 

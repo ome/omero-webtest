@@ -50,6 +50,14 @@
         var renderPlane = function(plane, loadedChannels, channels) {
             // plane is 0-255 already rendered according to 'loadedChannels'
             // we want to re-render to current 'channels'
+            var allSame = loadedChannels.reduce(function(prev, lc, i){
+                return (prev && lc.window.start == channels[i].window.start &&
+                    lc.window.end == channels[i].window.end);
+            }, true);
+            if (allSame) {
+                // requested rendering 'channels' are same as plane's loadedChannels
+                return plane;
+            }
             var p = plane.data;
             var l = p.length / 4;
             var r = channels.red,
