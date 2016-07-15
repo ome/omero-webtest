@@ -58,7 +58,8 @@ urlpatterns = patterns(
         name="multi_plane_stack"),
     # Returns multiple rendered planes stitched together in a grid
     # Planes/range specified by ?theT=0&theZ=0-10
-    url(r'^render_multi_planes/(?P<imageId>[0-9]+)/', views.render_multi_planes,
+    url(r'^render_multi_planes/(?P<imageId>[0-9]+)/',
+        views.render_multi_planes,
         name='webtest_render_multi_planes'),
 
     # Viewer overlays individual channels from the same image or
