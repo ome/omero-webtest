@@ -674,6 +674,55 @@ def stack_preview(request, imageId, conn=None, **kwargs):
 
 
 @login_required()
+def render_multi_planes(request, imageId, conn=None, **kwargs):
+
+    image, c = webgateway_views._get_prepared_image(
+        request, imageId, conn=conn)
+
+    theT = request.REQUEST.get('theT', '0')
+    theZ = request.REQUEST.get('theZ', '0')
+
+    if '-' in theZ:
+        z1, z2 = map(int, theZ.split('-'))
+        zList = range(z1, z2 + 1)
+    else:
+        zList = [int(theZ)]
+
+    if '-' in theT:
+        t1, t2 = map(int, theT.split('-'))
+        tList = range(t1, t2 + 1)
+    else:
+        tList = [int(theT)]
+
+    planes = []
+    for z in zList:
+        for t in tList:
+            planes.append(image.renderImage(z, t))
+
+    sizeX = image.getSizeX()
+    sizeY = image.getSizeY()
+
+    # assume grid is a single row of planes
+    gridWidth = sizeX * len(planes)
+    gridHeight = sizeY
+
+    grid = Image.new('RGB', (gridWidth, gridHeight))
+    x = 0
+    for p in planes:
+        grid.paste(p, (x, 0))
+        x += sizeX
+
+    rv = StringIO()
+    grid.save(rv, 'jpeg', quality=90)
+    # return HttpResponse(rv.getvalue(), mimetype='image/jpeg')
+
+    jpeg_data = rv.getvalue()
+
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
+    return rsp
+
+
+@login_required()
 def render_performance(request, obj_type, id, conn=None, **kwargs):
     """ Test rendering performance for all planes in an image """
     context = {}

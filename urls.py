@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf.urls import url, patterns
-
+from django.views.generic.base import TemplateView
 from webtest import views
 
 
@@ -51,6 +51,16 @@ urlpatterns = patterns(
     # over the x or y axes as chosen by user.
     url(r'^image_dimensions/(?P<imageId>[0-9]+)/',
         views.image_dimensions, name='webtest_image_dimensions'),
+
+    # Viewer that loads the whole stack
+    url(r'^multi_plane_stack/$', TemplateView.as_view(
+        template_name='webtest/demo_viewers/multi_plane_stack.html'),
+        name="multi_plane_stack"),
+    # Returns multiple rendered planes stitched together in a grid
+    # Planes/range specified by ?theT=0&theZ=0-10
+    url(r'^render_multi_planes/(?P<imageId>[0-9]+)/',
+        views.render_multi_planes,
+        name='webtest_render_multi_planes'),
 
     # Viewer overlays individual channels from the same image or
     # different images and manipulate them separately.

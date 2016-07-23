@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Full Stack Viewer</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            #canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            #zslider {
+                transform: rotate(-90deg);
+                position: absolute;
+                transform-origin: left;
+                bottom: 30px;
+                width: 300px;
+                left: 40%
+            }
+            .centerPanel {
+                z-index: 10;
+                position: absolute;
+                left: 0;
+                right: 0;
+                height: 35px;
+            }
+            .centerPanel div {
+                margin: auto;
+            }
+            .sidePanel {
+                z-index: 10;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 35px;
+            }
+            .sidePanel .controlPanel {
+                position: absolute;
+                /*bottom: 50px;*/
+                top: 50px;
+            }
+
+            .controlPanel {
+                text-align: center;
+                z-index: 10;
+                background: white;
+                border-radius: 5px;
+            }
+            .chSlider {
+                position: relative;
+                width:300px;
+            }
+            .chSlider.start {
+                top: 5px;
+            }
+
+            /* styles from http://stackoverflow.com/questions/4753946/html5-form-slider-with-two-inputs-possible */
+            section.range-slider {
+                position: relative;
+                width: 200px;
+                height: 30px;
+                text-align: center;
+                margin: auto;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+            section.range-slider input {
+                pointer-events: none;
+                position: absolute;
+                overflow: hidden;
+                left: 0;
+                top: 5px;
+                width: 200px;
+                outline: none;
+                height: 18px;
+                margin: 0;
+                padding: 0;
+            }
+            section.range-slider input::-webkit-slider-thumb {
+                pointer-events: all;
+                position: relative;
+                z-index: 1;
+                outline: 0;
+            }
+            section.range-slider input::-moz-range-thumb {
+                pointer-events: all;
+                position: relative;
+                z-index: 10;
+                -moz-appearance: none;
+                width: 9px;
+            }
+            section.range-slider input::-moz-range-track {
+                position: relative;
+                z-index: -1;
+                background-color: rgba(0, 0, 0, 1);
+                border: 0;
+            }
+            section.range-slider input:last-of-type::-moz-range-track {
+                -moz-appearance: none;
+                background: none transparent;
+                border: 0;
+            }
+            section.range-slider input[type=range]::-moz-focus-outer {
+                border: 0;
+            }
+            .chStartTxt {
+                float: left;
+                position: relative;
+                right: 30px;
+            }
+            .chEndTxt {
+                float: right;
+                position: relative;
+                left: 30px;
+            }
+        </style>
+
+        <script>
+            var WEBGATEWAY = "{% url 'webgateway' %}";
+            var WEBTEST = "{% url 'webtest_index' %}";
+        </script>
+
+        {% include "webgateway/base/includes/script_src_jquery.html" %}
+    </head>
+
+    <body>
+
+        <div class="centerPanel" style="top: 30px;">
+            <div class="controlPanel" style="width: 500px; height: 35px">
+                zoom:
+                <input id="zoomslider" type="range" min='10' max='500' value='100' />
+                <span id='zoom'>100</span> %
+
+                <span id="status"></span>
+            </div>
+        </div>
+
+        <div class="sidePanel" style="left: 30px">
+            <div class="controlPanel" style="width: 50px; bottom: 50px">
+                <input id="zslider" type="range" min='0' />
+                <div style="position: absolute; bottom: 10px; left:0; right:0; text-align:center">
+                    Z: <span id='theZ'>0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidePanel" style="right: 30px; width:350px">
+            <div class="controlPanel" style="width: 350px;">
+                <!-- We have a bunch of channels (unused ones are hidden) -->
+                <div id="channelSliders">
+                    <section class="range-slider">
+                        <span class="chStartTxt">
+                        </span><input type="range" class="chStart">
+                        <input type="range" class="chEnd"><span class="chEndTxt"></span>
+                    </section>
+                    <section class="range-slider">
+                        <span class="chStartTxt"></span>
+                        <input type="range" class="chStart">
+                        <input type="range" class="chEnd">
+                        <span class="chEndTxt"></span>
+                    </section>
+                    <section class="range-slider">
+                        <span class="chStartTxt"></span>
+                        <input type="range" class="chStart">
+                        <input type="range" class="chEnd">
+                        <span class="chEndTxt"></span>
+                    </section>
+                    <section class="range-slider">
+                        <span class="chStartTxt"></span>
+                        <input type="range" class="chStart">
+                        <input type="range" class="chEnd">
+                        <span class="chEndTxt"></span>
+                    </section>
+                    <section class="range-slider">
+                        <span class="chStartTxt"></span>
+                        <input type="range" class="chStart">
+                        <input type="range" class="chEnd">
+                        <span class="chEndTxt"></span>
+                    </section>
+                </div>
+                <div>
+                    <button id="refreshImage">Refresh Image</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="centerPanel" style="bottom: 30px;">
+            <div class="controlPanel" style="width: 95%; height: 50px; position: relative; background: black">
+                <canvas id="tSliderCanvas" style="position: absolute; top: -25px; left: 10px; z-index: -1"></canvas>
+                <canvas id="tSliderCanvas2" style="position: absolute; top: -25px; left: 10px; z-index: -1"></canvas>
+                <div style="background: white; width: 520px">
+                    T:
+                    <input id="tslider" type="range" min='0' />
+                    <span id='theT'>0</span>
+                    Envelope
+                    <select id="tenvelope">
+                        <option value="1">1 t</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="10">10</option>
+                    </select>
+                    Play
+                    <input id="playMovie" type="checkbox">
+                    FPS
+                    <input id="framesPerSec" type="range" min='1' max='50'>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="canvas">
+        </canvas>
+
+        <canvas id="hiddencanvas"></canvas>
+        <canvas id="tempCanvas"></canvas>
+
+        <script src="{% static 'webtest/js/util.js' %}"></script>
+        <script src="{% static 'webtest/js/3rdparty/underscore.js' %}"></script>
+        <script src="{% static 'webtest/js/3rdparty/backbone.js' %}"></script>
+        <script src="{% static 'webtest/js/multi_plane_stack/imageModel.js' %}"></script>
+        <script src="{% static 'webtest/js/multi_plane_stack/imageDataManager.js' %}"></script>
+        <script src="{% static 'webtest/js/multi_plane_stack/imageCanvas.js' %}"></script>
+        <script src="{% static 'webtest/js/multi_plane_stack/multiPlaneImage.js' %}"></script>
+        <script src="{% static 'webtest/js/multi_plane_stack/uiControls.js' %}"></script>
+        <script src="{% static 'webtest/js/multi_plane_stack/app.js' %}"></script>
+    </body>
+</html>
