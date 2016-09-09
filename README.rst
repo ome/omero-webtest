@@ -35,6 +35,7 @@ Add webtest custom app to your installed web apps:
 Optional: install example webclient plugins:
 
 ::
+
     $ bin/omero config append omero.web.ui.right_plugins '["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"]'
     $ bin/omero config append omero.web.ui.center_plugins '["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"]'
 
@@ -46,6 +47,7 @@ Examples
 Existing examples are available on the following URLs:
 
 ::
+
     https://HOST/webtest/examples/IMAGE_ID/embed_big_image.html
     https://HOST/webtest/examples/IMAGE_ID/embed_viewer.html
 
