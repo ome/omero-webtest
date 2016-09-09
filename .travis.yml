@@ -9,7 +9,7 @@ sudo: false
 
 before_install:
   - pip install restructuredtext_lint
-  - pip install -r requirements.txt
+  - pip install flake8
 
 script:
   - flake8 -v .

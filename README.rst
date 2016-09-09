@@ -30,7 +30,7 @@ Add webtest custom app to your installed web apps:
 
 ::
 
-    $ bin/omero config append omero.web.apps '"webtest"'
+    $ bin/omero config append omero.web.apps '"omero_webtest"'
 
 Optional: install example webclient plugins:
 
