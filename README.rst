@@ -6,7 +6,7 @@
 
 
 OMERO.webtest
-============================
+=============
 OMERO.web app for various prototypes and examples.
 This was removed from the main OMERO.web in the 5.0.6 release of OMERO.
 
@@ -55,7 +55,7 @@ NB: note IMAGE_ID can be obtained from public images.
 
 New templates can be added to templates/webtest/examples. New template can benefit from dynamic variables: {{ host_name }} and {{ image_id }} passed through URL.
 
-Rendered template can be saved locally for further testing as a absolute uri is included.
+Rendered template can be saved locally for further testing as an absolute uri is included.
 
 License
 -------
