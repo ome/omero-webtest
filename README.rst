@@ -13,7 +13,7 @@ This was removed from the main OMERO.web in the 5.0.6 release of OMERO.
 Requirements
 ============
 
-* OMERO 5.1.0 or later.
+* OMERO.web 5.2.6 or newer.
 
 Installation
 ============
@@ -43,9 +43,8 @@ Now restart OMERO.web as normal.
 
 **Warning**:
 
-if OMERO.webtest is installed with OMERO version prior to **5.2.6**,
-the url will be https://your-web-server/omero_webtest instead of https://your-web-server/webtest as previously. This is due to a package re-organization required to distribute the application using a package manager.
-If installed with OMERO **5.2.6 and older**, the url will be back to https://your-web-server/webtest.
+OMERO.webtest version 0.2.x or newer is meant to be installed into OMERO.web **5.2.6 or newer**. This is due to Django Framework compatibility and a package re-organization required to distribute the application using Python Package Manager PyPi.
+
 
 
 Examples
