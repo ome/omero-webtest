@@ -13,14 +13,14 @@ This was removed from the main OMERO.web in the 5.0.6 release of OMERO.
 Requirements
 ============
 
-* OMERO 5.1.0 or later
+* OMERO.web 5.2.6 or newer.
 
-Installation
-============
+Installing from PyPI
+====================
 
-Install OMERO.web
+This section assumes that an OMERO.web is already installed.
 
-This app installs into the OMERO.web framework.
+Install the app using `pip <https://pip.pypa.io/en/stable/>`_:
 
 ::
 
@@ -41,6 +41,12 @@ Optional: install example webclient plugins:
 
 Now restart OMERO.web as normal.
 
+**Warning**:
+
+OMERO.webtest version 0.2.x requires OMERO.web **5.2.6 or newer**.
+This is due to Django Framework compatibility and to a required package reorganization in OMERO.webtest in version 0.2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.python.org/pypi>`_.
+
+
 Examples
 ========
 
@@ -51,11 +57,11 @@ Existing examples are available on the following URLs:
     https://HOST/webtest/examples/IMAGE_ID/embed_big_image.html
     https://HOST/webtest/examples/IMAGE_ID/embed_viewer.html
 
-NB: note IMAGE_ID can be obtained from public images.
+**Note**: IMAGE_ID can be obtained from public images.
 
 New templates can be added to templates/webtest/examples. New template can benefit from dynamic variables: {{ host_name }} and {{ image_id }} passed through URL.
 
-Rendered template can be saved locally for further testing as an absolute uri is included.
+Included: Rendered template that can be saved locally for further testing as an absolute uri.
 
 License
 -------
