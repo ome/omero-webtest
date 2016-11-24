@@ -210,7 +210,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
         bg.paste(part, (paste_x, paste_y))
         return bg
 
-    def getPlane(plane_info):
+    def get_plane(plane_info):
         """ Returns the rendered plane split into a single channel
         (ready for merging) """
         img = conn.getObject("Image", plane_info['imageId'])
@@ -237,11 +237,11 @@ def render_channel_overlay(request, conn=None, **kwargs):
     green_channel = None
     blue_channel = None
     if red is not None and red in planes:
-        red_channel = getPlane(planes[red])
+        red_channel = get_plane(planes[red])
     if green is not None and green in planes:
-        green_channel = getPlane(planes[green])
+        green_channel = get_plane(planes[green])
     if blue is not None and blue in planes:
-        blue_channel = getPlane(planes[blue])
+        blue_channel = get_plane(planes[blue])
 
     if red_channel is not None:
         size = red_channel.size
@@ -362,7 +362,7 @@ def split_view_figure(request, conn=None, **kwargs):
 
     # returns a list of channel info from the image, overridden if values
     # in request
-    def getChannelData(image):
+    def get_channel_data(image):
         channels = []
         i = 0
         channel_data = image.getChannels()
@@ -404,7 +404,7 @@ def split_view_figure(request, conn=None, **kwargs):
         # need z for render_image even if we're projecting
         images.append({"id": iid, "z": default_z, "name": image.getName()})
         if channels is None:
-            channels = getChannelData(image)
+            channels = get_channel_data(image)
         if height == 0:
             height = image.getSizeY()
         if width == 0:
@@ -476,7 +476,7 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
 
     # returns a list of channel info from the image, overridden if
     # values in request
-    def getChannelData(image):
+    def get_channel_data(image):
         channels = []
         i = 0
         chs = image.getChannels()
@@ -516,7 +516,7 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
 
     for image in dataset.listChildren():
         if channels is None or len(channels) == 0:
-            channels = getChannelData(image)
+            channels = get_channel_data(image)
         # image.getZ() returns 0 - should return default Z?
         default_z = image.getSizeZ()/2
         # need z for render_image even if we're projecting
