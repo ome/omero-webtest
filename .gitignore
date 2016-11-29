@@ -3,4 +3,4 @@ django
 *.pyc
 .DS_Store
 dist
-omero_webtest.*
+omero_webtest.egg-info
