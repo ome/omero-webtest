@@ -42,7 +42,7 @@ urlpatterns = patterns(
     # each with different rendering setting
     url(r'^dataset_split_view/(?P<dataset_id>[0-9]+)/',
         views.dataset_split_view, name='webtest_dataset_split_view'),
-    url(r'^dataset_split_include/(?P<datasetId>[0-9]+)/',
+    url(r'^dataset_split_include/(?P<dataset_id>[0-9]+)/',
         views.dataset_split_view,
         {"template": "webtest/webclient_plugins/dataset_split_include.html"},
         name='webtest_dataset_split_include'),
