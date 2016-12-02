@@ -19,12 +19,12 @@ urlpatterns = patterns(
 
     # 'Hello World' example from tutorial on
     # http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb
-    url(r'^dataset/(?P<datasetId>[0-9]+)/$', views.dataset,
+    url(r'^dataset/(?P<dataset_id>[0-9]+)/$', views.dataset,
         name="webtest_dataset"),
 
     # Another simple example - shows a stack preview for an image
     # with multiple Z sections
-    url(r'^stack_preview/(?P<imageId>[0-9]+)/$', views.stack_preview,
+    url(r'^stack_preview/(?P<image_id>[0-9]+)/$', views.stack_preview,
         name="webtest_stack_preview"),
 
     # Displays images (one per row) one channel per column in a grid.
@@ -40,16 +40,16 @@ urlpatterns = patterns(
 
     # View a dataset as two panels of images,
     # each with different rendering setting
-    url(r'^dataset_split_view/(?P<datasetId>[0-9]+)/',
+    url(r'^dataset_split_view/(?P<dataset_id>[0-9]+)/',
         views.dataset_split_view, name='webtest_dataset_split_view'),
-    url(r'^dataset_split_include/(?P<datasetId>[0-9]+)/',
+    url(r'^dataset_split_include/(?P<dataset_id>[0-9]+)/',
         views.dataset_split_view,
         {"template": "webtest/webclient_plugins/dataset_split_include.html"},
         name='webtest_dataset_split_include'),
 
     # view an image in grid with the Z, C, T dimensions split
     # over the x or y axes as chosen by user.
-    url(r'^image_dimensions/(?P<imageId>[0-9]+)/',
+    url(r'^image_dimensions/(?P<image_id>[0-9]+)/',
         views.image_dimensions, name='webtest_image_dimensions'),
 
     # Viewer overlays individual channels from the same image or
@@ -62,7 +62,7 @@ urlpatterns = patterns(
         name='webtest_render_channel_overlay'),
 
     # Show a panel of ROI thumbnails for an image
-    url(r'^image_rois/(?P<imageId>[0-9]+)/', views.image_rois,
+    url(r'^image_rois/(?P<image_id>[0-9]+)/', views.image_rois,
         name='webtest_image_rois'),
 
     # post a comment annotation to images. parameters are in request:
