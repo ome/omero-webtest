@@ -2,7 +2,8 @@
 ------------------
 
 - flake8 and pep8 compatible
-- Use valid SPDX license expression 
+- Use valid SPDX license expression
+- Add new example to browse plate
 
 0.2.1 (November 2016)
 ---------------------
