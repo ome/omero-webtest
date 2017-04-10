@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            OMERO.web - embed plate viewer
+        </title>
+
+        <style type="text/css">
+
+        </style>
+
+        <link rel="stylesheet" type="text/css" href="{{ host_name }}static/webgateway/css/ome.plateview.css">
+        
+        {% include "webgateway/base/includes/script_src_jquery.html" %}
+
+        <script type="text/javascript" src="{{ host_name }}static/webgateway/js/ome.gs_utils.js"></script>
+        <script type="text/javascript" src="{{ host_name }}static/webgateway/js/ome.plateview.js"></script>
+
+        <script type="text/javascript">
+   
+            $(document).ready(function () {
+
+                console.log("{{ host_name }}".slice(0, -1));
+
+                var plate_id = {{ image_id }};
+
+                var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ host_name }}webgateway',
+                                                     width: 96,
+                                                     staticurl: "{{ host_name }}static/webgateway/",
+                                                     useParentPrefix: false});
+                 wpv.load(plate_id, 0);
+            });
+        </script>
+
+    </head>
+<body>
+
+    <div id="spw"></div>
+
+</body>
+</html>
