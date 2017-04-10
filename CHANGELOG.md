@@ -1,21 +1,26 @@
-# 0.3.0 (April 2016)
+0.3.0 (April 2016)
+------------------
 
-    - flake8 and pep8 compatible
-    - Use valid SPDX license expression 
+- flake8 and pep8 compatible
+- Use valid SPDX license expression 
 
-# 0.2.1 (November 2016)
+0.2.1 (November 2016)
+---------------------
 
-    - Update readme and add classifiers
+- Update readme and add classifiers
 
-# 0.2.0 (October 2016)
+0.2.0 (October 2016)
+--------------------
 
-    - Change package structure
-    - Release the app from PyPI
+- Change package structure
+- Release the app from PyPI
 
-# 0.1.1 (September 2016)
+0.1.1 (September 2016)
+----------------------
 
-    - Fix package structure
+- Fix package structure
 
-# 0.1.0 (September 2016)
+0.1.0 (September 2016)
+----------------------
 
-    - Initial release
+- Initial release
