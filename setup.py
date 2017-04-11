@@ -32,7 +32,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '0.2.1'
+VERSION = '0.3.0'
 
 
 setup(name="omero-webtest",
@@ -45,7 +45,6 @@ setup(name="omero-webtest",
           'Environment :: Web Environment',
           'Framework :: Django',
           'Intended Audience :: Developers',
-          'License :: OSI Approved :: GNU Affero General Public License v3.0',
           'Natural Language :: English',
           'Operating System :: OS Independent',
           'Programming Language :: JavaScript',

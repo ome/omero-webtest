@@ -71,4 +71,4 @@ OMERO.webtest is released under the AGPL.
 Copyright
 ---------
 
-2016, The Open Microscopy Environment
+2016-2017, The Open Microscopy Environment
