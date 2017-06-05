@@ -101,7 +101,7 @@
         $(function(){
             /* Prepare the viewport */
             var viewport = $.WeblitzViewport($("#viewport"), "https://nightshade.openmicroscopy.org/webgateway/", {
-                'mediaroot': "https://cowfish.openmicroscopy.org/webmerge/static/"
+                'mediaroot': "{% static '' %}"
             });
             // On imageLoad(), set up controls for the newly-loaded image
             viewport.bind('imageLoad', function(event, viewer){
@@ -126,7 +126,7 @@
 
             /* Prepare viewport2 */
             var viewport2 = $.WeblitzViewport($("#viewport2"), "https://nightshade.openmicroscopy.org/webgateway/", {
-                'mediaroot': "https://cowfish.openmicroscopy.org/webmerge/static/"
+                'mediaroot': "{% static '' %}"
             });
             // On imageLoad(), set up controls for the newly-loaded image
             viewport2.bind('imageLoad', function(event, viewer){
