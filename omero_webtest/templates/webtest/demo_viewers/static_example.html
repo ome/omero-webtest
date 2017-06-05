@@ -96,11 +96,12 @@
         }
 
 
-
+        var VIEWPORT_ID1 = '#viewport';
+        var VIEWPORT_ID2 = '#viewport2'
 
         $(function(){
             /* Prepare the viewport */
-            var viewport = $.WeblitzViewport($("#viewport"), "https://nightshade.openmicroscopy.org/webgateway/", {
+            var viewport = $.WeblitzViewport($(VIEWPORT_ID1), "https://nightshade.openmicroscopy.org/webgateway/", {
                 'mediaroot': "{% static '' %}"
             });
             // On imageLoad(), set up controls for the newly-loaded image
@@ -125,7 +126,7 @@
 
 
             /* Prepare viewport2 */
-            var viewport2 = $.WeblitzViewport($("#viewport2"), "https://nightshade.openmicroscopy.org/webgateway/", {
+            var viewport2 = $.WeblitzViewport($(VIEWPORT_ID2), "https://nightshade.openmicroscopy.org/webgateway/", {
                 'mediaroot': "{% static '' %}"
             });
             // On imageLoad(), set up controls for the newly-loaded image
@@ -148,11 +149,80 @@
                 $(this).toggleClass("pressed");
             });
 
+
+            // Link zooming of both viewports
+            // To avoid infinite loop of triggering each other,
+            // need to ignore events caused by setZoom()
+            var ignoreZoom = false;
+            viewport.bind('instant_zoom', function(e, percent) {
+                if ($('#syncZoom').is(':checked') && !ignoreZoom) {
+                    ignoreZoom = true;
+                    viewport2.setZoom(percent);
+                    ignoreZoom = false;
+                }
+            });
+            viewport2.bind('instant_zoom', function(e, percent) {
+                if ($('#syncZoom').is(':checked') && !ignoreZoom) {
+                    ignoreZoom = true;
+                    viewport.setZoom(percent);
+                    ignoreZoom = false;
+                }
+            });
+
+
+            var getViewportCentre = function(vp) {
+                var x_offset = vp.viewportimg.get(0).getXOffset();
+                var y_offset = vp.viewportimg.get(0).getYOffset();
+                var wrapdiv = $("#" + vp.self.attr('id') + "-img-vpi").parent();
+                var zoom = vp.getZoom();
+                var viewport_width = wrapdiv.width();
+                var viewport_height = wrapdiv.height();
+                var cx = x_offset + (viewport_width/2);
+                var cy = y_offset + (viewport_height/2);
+                cx = cx * 100 / zoom;
+                cy = cy * 100 / zoom;
+                return({'x': cx, 'y': cy});
+            }
+
+            var setViewportCentre = function(vp, coords) {
+                var cx = coords.x;
+                var cy = coords.y;
+                var wrapdiv = $("#" + vp.self.attr('id') + "-img-vpi").parent();
+                var zoom = vp.getZoom();
+                cx = cx * zoom / 100;
+                cy = cy * zoom / 100;
+                var viewport_width = wrapdiv.width();
+                var viewport_height = wrapdiv.height();
+                var x_offset = cx - (viewport_width/2);
+                var y_offset = cy - (viewport_height/2);
+                vp.viewportimg.get(0).setXOffset(x_offset);
+                vp.viewportimg.get(0).setYOffset(y_offset);
+            }
+
+
+            $(VIEWPORT_ID1 + '-img-vpi').mouseup(function (e) {
+                if ($('#syncCentre').is(':checked')) {
+                    var centre = getViewportCentre(viewport);
+                    setViewportCentre(viewport2, centre);
+                }
+            });
+            $(VIEWPORT_ID2 + '-img-vpi').mouseup(function (e) {
+                if ($('#syncCentre').is(':checked')) {
+                    var centre = getViewportCentre(viewport2);
+                    setViewportCentre(viewport, centre);
+                }
+            });
         });
     </script>
 </head>
 
 <body>
+
+    Sync Zoom: <input type="checkbox" id="syncZoom">
+
+    Sync Centre: <input type="checkbox" id="syncCentre">
+
+    <hr style="height: 0">
 
     <div class="thumbList">
         <div id="controls"></div>
