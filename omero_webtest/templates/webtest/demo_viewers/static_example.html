@@ -1,0 +1,260 @@
+<!doctype html>
+<!-- See discussion at https://www.openmicroscopy.org/community/viewtopic.php?f=6&t=8058&p=17114 -->
+<html>
+<head>
+
+    <link href="{% static 'omeroweb.viewer.min.css' %}" type="text/css" rel="stylesheet"></link>
+    <script src="{% static 'omeroweb.viewer.min.js' %}" type="text/javascript"></script>
+
+    <!--
+
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.viewport.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar.css"|add:url_suffix %}" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.gs_slider.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/base.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.snippet_header_logo.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.postit.css"|add:url_suffix %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic-1.2/farbtastic.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css"|add:url_suffix %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs-2.0.0/panojs.css" %}" media="all" />
+
+
+    <script type="text/javascript" src="http://localhost:4080/static/3rdparty/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/ome.csrf.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/ome.popup.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/3rdparty/aop-1.3.js"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/ome.gs_utils.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/ome.viewportImage.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/ome.gs_slider.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/ome.viewport.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="http://localhost:4080/static/webgateway/js/omero_image.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.smartdialog.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.colorbtn.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.postit.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/3rdparty/jquery.selectboxes-2.2.6.js"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.rangewidget.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/3rdparty/farbtastic-1.2/farbtastic.js"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.gs_utils.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.scalebardisplay.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/webgateway/js/ome.roidisplay.js?_5.3.0-m3-ice35-SNAPSHOT"></script>
+    <script type="text/javascript" src="/static/3rdparty/raphael-2.1.0/raphael-min.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/raphael-2.1.0/scale.raphael.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/extjs/ext-core.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/utils.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/PanoJS.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/controls.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/pyramid_Bisque.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/pyramid_imgcnv.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/pyramid_Zoomify.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/control_thumbnail.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/control_info.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/control_svg.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/control_roi.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/panojs-2.0.0/control_scalebar.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/jquery.mousewheel-3.0.6.js"></script>
+    <script type="text/javascript" src="/static/3rdparty/hammer-2.0.2/hammer.min.js"></script>
+    -->
+
+
+    <style type="text/css">
+    .viewport {
+        height: 400px;
+        width: 500px;
+    }
+    .thumbList {
+        width: 500px;
+        float: left;
+        margin: 10px 20px;
+    }
+    </style>
+
+    <script>
+
+        var createControls = function (viewport, controlPanel) {
+
+            /**
+             * This function is called when an image is initially loaded.
+             */
+             var $chBox = $(controlPanel).empty();
+
+            /* image name */
+            $chBox.append("<h2>" + viewport.loadedImg.meta.imageName + "</h2>");
+
+            /**
+             * create channel buttons
+             */
+            var channels = viewport.getChannels();
+            for (var i=0; i<channels.length; i++) {
+                $chBox.append('<button id="viewer-ch-' + i + '"\
+                    class="squared' + (channels[i].active ? ' pressed' : '') + '"\
+                    style="background-color: #' + channels[i].color + '"\
+                    title="' + channels[i].label + '">' + channels[i].label + '</button>');
+            }
+        }
+
+
+        var VIEWPORT_ID1 = '#viewport';
+        var VIEWPORT_ID2 = '#viewport2'
+
+        $(function(){
+            /* Prepare the viewport */
+            var viewport = $.WeblitzViewport($(VIEWPORT_ID1), "https://nightshade.openmicroscopy.org/webgateway/", {
+                'mediaroot': "{% static '' %}"
+            });
+            // On imageLoad(), set up controls for the newly-loaded image
+            viewport.bind('imageLoad', function(event, viewer){
+                createControls(viewer, "#controls");
+            });
+
+            /* Load the selected image into the viewport */
+            viewport.load(3933597);
+
+
+            $(".thumb").click(function(){
+                var iid = $(this).attr('data-id');
+                iid = parseInt(iid);
+                viewport.load(iid);
+            });
+
+            $("#controls").on("click", "button.squared", function(e) {
+                viewport.toggleChannel(e.target.id.split("-")[2]);
+                $(this).toggleClass("pressed");
+            });
+
+
+            /* Prepare viewport2 */
+            var viewport2 = $.WeblitzViewport($(VIEWPORT_ID2), "https://nightshade.openmicroscopy.org/webgateway/", {
+                'mediaroot': "{% static '' %}"
+            });
+            // On imageLoad(), set up controls for the newly-loaded image
+            viewport2.bind('imageLoad', function(event, viewer){
+                createControls(viewer, "#controls2");
+            });
+
+            /* Load the selected image into the viewport */
+            viewport2.load(3933597);
+
+
+            $(".thumb2").click(function(){
+                var iid = $(this).attr('data-id');
+                iid = parseInt(iid);
+                viewport2.load(iid);
+            });
+
+            $("#controls2").on("click", "button.squared", function(e) {
+                viewport2.toggleChannel(e.target.id.split("-")[2]);
+                $(this).toggleClass("pressed");
+            });
+
+
+            // Link zooming of both viewports
+            // To avoid infinite loop of triggering each other,
+            // need to ignore events caused by setZoom()
+            var ignoreZoom = false;
+            viewport.bind('instant_zoom', function(e, percent) {
+                if ($('#syncZoom').is(':checked') && !ignoreZoom) {
+                    ignoreZoom = true;
+                    viewport2.setZoom(percent);
+                    ignoreZoom = false;
+                }
+            });
+            viewport2.bind('instant_zoom', function(e, percent) {
+                if ($('#syncZoom').is(':checked') && !ignoreZoom) {
+                    ignoreZoom = true;
+                    viewport.setZoom(percent);
+                    ignoreZoom = false;
+                }
+            });
+
+
+            var getViewportCentre = function(vp) {
+                var x_offset = vp.viewportimg.get(0).getXOffset();
+                var y_offset = vp.viewportimg.get(0).getYOffset();
+                var wrapdiv = $("#" + vp.self.attr('id') + "-img-vpi").parent();
+                var zoom = vp.getZoom();
+                var viewport_width = wrapdiv.width();
+                var viewport_height = wrapdiv.height();
+                var cx = x_offset + (viewport_width/2);
+                var cy = y_offset + (viewport_height/2);
+                cx = cx * 100 / zoom;
+                cy = cy * 100 / zoom;
+                return({'x': cx, 'y': cy});
+            }
+
+            var setViewportCentre = function(vp, coords) {
+                var cx = coords.x;
+                var cy = coords.y;
+                var wrapdiv = $("#" + vp.self.attr('id') + "-img-vpi").parent();
+                var zoom = vp.getZoom();
+                cx = cx * zoom / 100;
+                cy = cy * zoom / 100;
+                var viewport_width = wrapdiv.width();
+                var viewport_height = wrapdiv.height();
+                var x_offset = cx - (viewport_width/2);
+                var y_offset = cy - (viewport_height/2);
+                vp.viewportimg.get(0).setXOffset(x_offset);
+                vp.viewportimg.get(0).setYOffset(y_offset);
+            }
+
+
+            $(VIEWPORT_ID1 + '-img-vpi').mouseup(function (e) {
+                if ($('#syncCentre').is(':checked')) {
+                    var centre = getViewportCentre(viewport);
+                    setViewportCentre(viewport2, centre);
+                }
+            });
+            $(VIEWPORT_ID2 + '-img-vpi').mouseup(function (e) {
+                if ($('#syncCentre').is(':checked')) {
+                    var centre = getViewportCentre(viewport2);
+                    setViewportCentre(viewport, centre);
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+    Sync Zoom: <input type="checkbox" id="syncZoom">
+
+    Sync Centre: <input type="checkbox" id="syncCentre">
+
+    <hr style="height: 0">
+
+    <div class="thumbList">
+        <div id="controls"></div>
+    </div>
+    <div class="thumbList">
+        <div id="controls2"></div>
+    </div>
+    <div style="clear: both"></div>
+
+    <div class="thumbList" style="float:left">
+        <div id="viewport" class="viewport"></div>
+    </div>
+    <div class="thumbList" style="float:left">
+        <div id="viewport2" class="viewport"></div>
+    </div>
+    <div style="clear: both; height:20px"></div>
+    
+    <div class="thumbList">
+        <img class="thumb" data-id="3933597" src="https://nightshade.openmicroscopy.org/webgateway/render_thumbnail/3933597/96/"/>
+
+        <img id="bigimageThumb" class="thumb" data-id="3946830" src="https://nightshade.openmicroscopy.org/webgateway/render_thumbnail/3946830/96/"/>
+
+        <img id="smallimageThumb" class="thumb" data-id="3925542" src="https://nightshade.openmicroscopy.org/webgateway/render_thumbnail/3925542/96/"/>
+    </div>
+
+    <div class="thumbList">
+        <img class="thumb2" data-id="3933597" src="https://nightshade.openmicroscopy.org/webgateway/render_thumbnail/3933597/96/"/>
+
+        <img class="thumb2" data-id="3946830" src="https://nightshade.openmicroscopy.org/webgateway/render_thumbnail/3946830/96/"/>
+
+        <img class="thumb2" data-id="3925542" src="https://nightshade.openmicroscopy.org/webgateway/render_thumbnail/3925542/96/"/>
+    </div>
+</body>
+
+</html>
