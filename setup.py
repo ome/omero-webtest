@@ -32,7 +32,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '0.3.0'
+VERSION = '0.3.1'
 
 
 setup(name="omero-webtest",
@@ -63,7 +63,7 @@ setup(name="omero-webtest",
       author_email='ome-devel@lists.openmicroscopy.org.uk',
       license='AGPL-3.0',
       url="https://github.com/openmicroscopy/omero-webtest",
-      download_url='https://github.com/openmicroscopy/omero-webtest/tarball/%s' % VERSION,  # NOQA
+      download_url='https://github.com/openmicroscopy/omero-webtest/archive/v%s.tar.gz' % VERSION,  # NOQA
       keywords=['OMERO.web', 'plugin'],
       include_package_data=True,
       zip_safe=False,
