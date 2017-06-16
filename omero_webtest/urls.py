@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf.urls import url, patterns
+from django.views.generic.base import TemplateView
 
 from . import views
 
@@ -26,6 +27,10 @@ urlpatterns = patterns(
     # with multiple Z sections
     url(r'^stack_preview/(?P<image_id>[0-9]+)/$', views.stack_preview,
         name="webtest_stack_preview"),
+
+    url(r'^static_example/$', TemplateView.as_view(
+        template_name='webtest/demo_viewers/static_example.html'),
+        name="static_example_viewer"),
 
     # Displays images (one per row) one channel per column in a grid.
     # Params are passed in request, E.g. imageIds
