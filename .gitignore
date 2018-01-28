@@ -4,3 +4,4 @@ django
 .DS_Store
 dist
 omero_webtest.egg-info
+.omero
