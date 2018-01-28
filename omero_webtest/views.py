@@ -23,10 +23,10 @@ logger = logging.getLogger(__name__)
 
 try:
     from PIL import Image
-except:  # pragma: nocover
+except ImportError:
     try:
         import Image
-    except:
+    except ImportError:
         logger.error('No Pillow installed,\
             line plots and split channel will fail!')
 
@@ -298,8 +298,8 @@ def add_annotations(request, conn=None, **kwargs):
     ann = update_service.saveAndReturnObject(ann)
 
     images = []
-    for iId in image_ids:
-        image = conn.getObject("Image", iId)
+    for image_id in image_ids:
+        image = conn.getObject("Image", image_id)
         if image is None:
             continue
         if replace and ns is not None:
@@ -308,12 +308,12 @@ def add_annotations(request, conn=None, **kwargs):
                 old_comment.setTextValue(rstring(str(comment)))
                 update_service.saveObject(old_comment)
                 continue
-        l = omero.model.ImageAnnotationLinkI()
+        link = omero.model.ImageAnnotationLinkI()
         # use unloaded object to avoid update conflicts
-        parent = omero.model.ImageI(iId, False)
-        l.setParent(parent)
-        l.setChild(ann)
-        update_service.saveObject(l)
+        parent = omero.model.ImageI(image_id, False)
+        link.setParent(parent)
+        link.setChild(ann)
+        update_service.saveObject(link)
         images.append(image)
 
     return render(request,
@@ -352,12 +352,12 @@ def split_view_figure(request, conn=None, **kwargs):
     try:
         w = request.REQUEST.get('width', 0)
         width = int(w)
-    except:
+    except Exception:
         width = 0
     try:
         h = request.REQUEST.get('height', 0)
         height = int(h)
-    except:
+    except Exception:
         height = 0
 
     # returns a list of channel info from the image, overridden if values
@@ -471,7 +471,7 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
     try:
         size = request.REQUEST.get('size', 100)
         size = int(size)
-    except:
+    except Exception:
         size = 100
 
     # returns a list of channel info from the image, overridden if
