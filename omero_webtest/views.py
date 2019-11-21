@@ -370,7 +370,7 @@ def split_view_figure(request, conn=None, **kwargs):
             return None
         for i, c in enumerate(channel_data):
             name = request.GET.get('cName%s' % i,
-                                       c.getLogicalChannel().getName())
+                                   c.getLogicalChannel().getName())
             # if we have channel info from a form, we know that
             # checkbox:None is unchecked (not absent)
             if request.GET.get('cName%s' % i, None):
