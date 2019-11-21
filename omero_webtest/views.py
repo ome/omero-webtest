@@ -87,12 +87,12 @@ def channel_overlay_viewer(request, iid, conn=None, **kwargs):
     of each
     """
     image = conn.getObject("Image", iid)
-    default_z = image.getSizeZ()/2
+    default_z = image.getSizeZ()//2
 
     if image is not None:
         if image.getSizeC() == 1:
             return HttpResponseRedirect(
-                reverse("webgateway.views.full_viewer", args=(iid,)))
+                reverse("webgateway_full_viewer", args=(iid,)))
 
     # try to work out which channels should be 'red',
     # 'green', 'blue' based on rendering settings

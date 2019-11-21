@@ -5,7 +5,7 @@
 
 {% for i in dataset.listChildren %}
     <div style="float:left; padding:10px">
-        <img src="{% url 'webgateway.views.render_thumbnail' i.id %}" />
+        <img src="{% url 'webgateway_render_thumbnail' i.id %}" />
         {{ i.getName }}
     </div>
 {% endfor %}
