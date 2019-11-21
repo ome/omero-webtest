@@ -400,7 +400,7 @@ def split_view_figure(request, conn=None, **kwargs):
         if image is None:
             continue
         # image.getZ() returns 0 - should return default Z?
-        default_z = image.getSizeZ()/2
+        default_z = image.getSizeZ()//2
         # need z for render_image even if we're projecting
         images.append({"id": iid, "z": default_z, "name": image.getName()})
         if channels is None:
@@ -518,7 +518,7 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
         if channels is None or len(channels) == 0:
             channels = get_channel_data(image)
         # image.getZ() returns 0 - should return default Z?
-        default_z = image.getSizeZ()/2
+        default_z = image.getSizeZ()//2
         # need z for render_image even if we're projecting
         images.append({"id": image.getId(), "z": default_z,
                        "name": image.getName()})
@@ -687,13 +687,13 @@ def render_performance(request, obj_type, id, conn=None, **kwargs):
             max_tiles = 50
             tile_list = []
             tile_w, tile_h = image._re.getTileSize()
-            cols = image.getSizeX() / tile_w
-            rows = image.getSizeY() / tile_h
+            cols = image.getSizeX() // tile_w
+            rows = image.getSizeY() // tile_h
             tile_list = [{'col': c, 'row': r}
                          for r in range(rows) for c in range(cols)]
             if (len(tile_list) > 2*max_tiles):
                 # start in middle of list (looks nicer!)
-                tile_list = tile_list[(len(tile_list)/2):]
+                tile_list = tile_list[(len(tile_list)//2):]
             tile_list = tile_list[:max_tiles]
             context = {'tileList': tile_list, 'imageId': id}
         # A regular Image
