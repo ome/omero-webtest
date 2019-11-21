@@ -9,7 +9,7 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.webclient.decorators import login_required, render_response
 
-from cStringIO import StringIO
+from io import BytesIO
 
 import logging
 import omero
@@ -219,7 +219,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
         rgb = img.renderImage(plane_info['z'], plane_info['t'])
 
         # somehow this line is required to prevent an error at 'rgb.split()'
-        rgb.save(StringIO(), 'jpeg', quality=90)
+        rgb.save(BytesIO(), 'jpeg', quality=90)
 
         r, g, b = rgb.split()  # go from RGB to L
 
@@ -257,7 +257,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
 
     merge = Image.merge("RGB", (red_channel, green_channel, blue_channel))
     # convert from PIL back to string image data
-    rv = StringIO()
+    rv = BytesIO()
     compression = 0.9
     merge.save(rv, 'jpeg', quality=int(compression*100))
     jpeg_data = rv.getvalue()
