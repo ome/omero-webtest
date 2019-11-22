@@ -21,7 +21,7 @@
             <a href="{% url 'webtest_index' %}">Choose another</a>. <br>
             {% for i in images %}
                 <div style="float:left; padding:2px" title="{{ i.name }} ID: {{ i.id }}">
-                    <img src="{% url 'webgateway.views.render_thumbnail' i.id %}" />
+                    <img src="{% url 'webgateway_render_thumbnail' i.id %}" />
                 </div>
             {% endfor %}
         </td>
@@ -30,7 +30,7 @@
             Name: {{ dataset.getName }} <br>
             {% for i in dataset.listChildren %}
                 <div style="float:left; padding:2px" title="{{ i.name }} ID: {{ i.id }}">
-                    <a href="?Image={{ i.id }}"><img src="{% url 'webgateway.views.render_thumbnail' i.id %}" />
+                    <a href="?Image={{ i.id }}"><img src="{% url 'webgateway_render_thumbnail' i.id %}" />
                 </div>
             {% endfor %}
         </td>

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.views.generic.base import TemplateView
 
 from . import views
 
 
-urlpatterns = patterns(
-    'django.views.generic.simple',
+urlpatterns = [
 
     url(r'^examples/(?P<image_id>[0-9]+)/(?P<template>[a-z0-9_].*)',
         lambda request, image_id, template:
@@ -91,4 +90,4 @@ urlpatterns = patterns(
     # in a Plate or Dataset (e.g. to compare FS)
     url(r'^render_performance/(?P<obj_type>[a-z]+)/(?P<id>[0-9]+)/',
         views.render_performance, name='webtest_render_performance'),
-)
+]

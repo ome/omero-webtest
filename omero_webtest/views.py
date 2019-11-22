@@ -9,7 +9,7 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.webclient.decorators import login_required, render_response
 
-from cStringIO import StringIO
+from io import BytesIO
 
 import logging
 import omero
@@ -53,8 +53,8 @@ def index(request, conn=None, **kwargs):
     params.page(0, 10)
 
     # use Image IDs from request...
-    if request.REQUEST.get("Image", None):
-        image_ids = request.REQUEST.get("Image", None)
+    if request.GET.get("Image", None):
+        image_ids = request.GET.get("Image", None)
         ids = [int(iid) for iid in image_ids.split(",")]
         images = list(conn.getObjects("Image", ids))
     else:
@@ -87,12 +87,12 @@ def channel_overlay_viewer(request, iid, conn=None, **kwargs):
     of each
     """
     image = conn.getObject("Image", iid)
-    default_z = image.getSizeZ()/2
+    default_z = image.getSizeZ()//2
 
     if image is not None:
         if image.getSizeC() == 1:
             return HttpResponseRedirect(
-                reverse("webgateway.views.full_viewer", args=(iid,)))
+                reverse("webgateway_full_viewer", args=(iid,)))
 
     # try to work out which channels should be 'red',
     # 'green', 'blue' based on rendering settings
@@ -219,7 +219,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
         rgb = img.renderImage(plane_info['z'], plane_info['t'])
 
         # somehow this line is required to prevent an error at 'rgb.split()'
-        rgb.save(StringIO(), 'jpeg', quality=90)
+        rgb.save(BytesIO(), 'jpeg', quality=90)
 
         r, g, b = rgb.split()  # go from RGB to L
 
@@ -257,7 +257,7 @@ def render_channel_overlay(request, conn=None, **kwargs):
 
     merge = Image.merge("RGB", (red_channel, green_channel, blue_channel))
     # convert from PIL back to string image data
-    rv = StringIO()
+    rv = BytesIO()
     compression = 0.9
     merge.save(rv, 'jpeg', quality=int(compression*100))
     jpeg_data = rv.getvalue()
@@ -280,15 +280,15 @@ def add_annotations(request, conn=None, **kwargs):
                         annotation with same ns
     @return: A simple html page with a success message
     """
-    id_list = request.REQUEST.get('imageIds', None)    # comma - delimited list
+    id_list = request.GET.get('imageIds', None)    # comma - delimited list
     if id_list:
-        image_ids = [long(i) for i in id_list.split(",")]
+        image_ids = [int(i) for i in id_list.split(",")]
     else:
         image_ids = []
 
-    comment = request.REQUEST.get('comment', None)
-    ns = request.REQUEST.get('ns', None)
-    replace = request.REQUEST.get('replace', False) in ('true', 'True')
+    comment = request.GET.get('comment', None)
+    ns = request.GET.get('ns', None)
+    replace = request.GET.get('replace', False) in ('true', 'True')
 
     update_service = conn.getUpdateService()
     ann = omero.model.CommentAnnotationI()
@@ -339,23 +339,23 @@ def split_view_figure(request, conn=None, **kwargs):
     """
     query_string = request.META["QUERY_STRING"]
 
-    id_list = request.REQUEST.get('imageIds', None)  # comma - delimited list
-    id_list = request.REQUEST.get('Image', id_list)  # we also support 'Image'
+    id_list = request.GET.get('imageIds', None)  # comma - delimited list
+    id_list = request.GET.get('Image', id_list)  # we also support 'Image'
     if id_list:
-        image_ids = [long(i) for i in id_list.split(",")]
+        image_ids = [int(i) for i in id_list.split(",")]
     else:
         image_ids = []
 
-    split_grey = request.REQUEST.get('split_grey', None)
-    merged_names = request.REQUEST.get('merged_names', None)
-    proj = request.REQUEST.get('proj', "normal")    # intmean, intmax, normal
+    split_grey = request.GET.get('split_grey', None)
+    merged_names = request.GET.get('merged_names', None)
+    proj = request.GET.get('proj', "normal")    # intmean, intmax, normal
     try:
-        w = request.REQUEST.get('width', 0)
+        w = request.GET.get('width', 0)
         width = int(w)
     except Exception:
         width = 0
     try:
-        h = request.REQUEST.get('height', 0)
+        h = request.GET.get('height', 0)
         height = int(h)
     except Exception:
         height = 0
@@ -369,13 +369,13 @@ def split_view_figure(request, conn=None, **kwargs):
         if channel_data is None:    # E.g. failed import etc
             return None
         for i, c in enumerate(channel_data):
-            name = request.REQUEST.get('cName%s' % i,
-                                       c.getLogicalChannel().getName())
+            name = request.GET.get('cName%s' % i,
+                                   c.getLogicalChannel().getName())
             # if we have channel info from a form, we know that
             # checkbox:None is unchecked (not absent)
-            if request.REQUEST.get('cName%s' % i, None):
-                active = request.REQUEST.get('cActive%s' % i, None) is not None
-                merged = request.REQUEST.get('cMerged%s' % i, None) is not None
+            if request.GET.get('cName%s' % i, None):
+                active = request.GET.get('cActive%s' % i, None) is not None
+                merged = request.GET.get('cMerged%s' % i, None) is not None
             else:
                 active = True
                 merged = True
@@ -383,10 +383,10 @@ def split_view_figure(request, conn=None, **kwargs):
             if colour is None:
                 return None     # rendering engine problems
             colour = colour.getHtml()
-            start = request.REQUEST.get('cStart%s' % i, c.getWindowStart())
-            end = request.REQUEST.get('cEnd%s' % i, c.getWindowEnd())
+            start = request.GET.get('cStart%s' % i, c.getWindowStart())
+            end = request.GET.get('cEnd%s' % i, c.getWindowEnd())
             render_all = (None is not
-                          request.REQUEST.get('cRenderAll%s' % i, None))
+                          request.GET.get('cRenderAll%s' % i, None))
             channels.append({"name": name, "index": i,
                              "active": active, "merged": merged,
                              "colour": colour, "start": start,
@@ -400,7 +400,7 @@ def split_view_figure(request, conn=None, **kwargs):
         if image is None:
             continue
         # image.getZ() returns 0 - should return default Z?
-        default_z = image.getSizeZ()/2
+        default_z = image.getSizeZ()//2
         # need z for render_image even if we're projecting
         images.append({"id": iid, "z": default_z, "name": image.getName()})
         if channels is None:
@@ -469,7 +469,7 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
     dataset = conn.getObject("Dataset", dataset_id)
 
     try:
-        size = request.REQUEST.get('size', 100)
+        size = request.GET.get('size', 100)
         size = int(size)
     except Exception:
         size = 100
@@ -488,10 +488,10 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
             name = c.getLogicalChannel().getName()
             # if we have channel info from a form, we know that
             # checkbox:None is unchecked (not absent)
-            if request.REQUEST.get('cStart%s' % i, None):
-                active_left = (None is not request.REQUEST.get(
+            if request.GET.get('cStart%s' % i, None):
+                active_left = (None is not request.GET.get(
                                'cActiveLeft%s' % i, None))
-                active_right = (None is not request.REQUEST.get(
+                active_right = (None is not request.GET.get(
                                 'cActiveRight%s' % i, None))
             else:
                 active_left = True
@@ -500,9 +500,9 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
             if colour is None:
                 continue    # serious rendering engine problems
             colour = colour.getHtml()
-            start = request.REQUEST.get('cStart%s' % i, c.getWindowStart())
-            end = request.REQUEST.get('cEnd%s' % i, c.getWindowEnd())
-            render_all = (None is not request.REQUEST.get(
+            start = request.GET.get('cStart%s' % i, c.getWindowStart())
+            end = request.GET.get('cEnd%s' % i, c.getWindowEnd())
+            render_all = (None is not request.GET.get(
                           'cRenderAll%s' % i, None))
             channels.append({"name": name, "index": i,
                              "active_left": active_left,
@@ -518,7 +518,7 @@ def dataset_split_view(request, dataset_id, conn=None, **kwargs):
         if channels is None or len(channels) == 0:
             channels = get_channel_data(image)
         # image.getZ() returns 0 - should return default Z?
-        default_z = image.getSizeZ()/2
+        default_z = image.getSizeZ()//2
         # need z for render_image even if we're projecting
         images.append({"id": image.getId(), "z": default_z,
                        "name": image.getName()})
@@ -567,23 +567,23 @@ def image_dimensions(request, image_id, conn=None, **kwargs):
         return render(request,
                       'webtest/demo_viewers/image_dimensions.html', {})
 
-    mode = request.REQUEST.get('mode', None) and 'g' or 'c'
+    mode = request.GET.get('mode', None) and 'g' or 'c'
     dims = {'Z': image.getSizeZ(), 'C': image.getSizeC(),
             'T': image.getSizeT()}
 
     default_y_dim = 'Z'
 
-    x_dim = request.REQUEST.get('xDim', 'C')
+    x_dim = request.GET.get('xDim', 'C')
     if x_dim not in dims.keys():
         x_dim = 'C'
 
-    y_dim = request.REQUEST.get('yDim', default_y_dim)
+    y_dim = request.GET.get('yDim', default_y_dim)
     if y_dim not in dims.keys():
         y_dim = 'Z'
 
-    x_frames = int(request.REQUEST.get('xFrames', 5))
+    x_frames = int(request.GET.get('xFrames', 5))
     x_size = dims[x_dim]
-    y_frames = int(request.REQUEST.get('yFrames', 10))
+    y_frames = int(request.GET.get('yFrames', 10))
     y_size = dims[y_dim]
 
     x_frames = min(x_frames, x_size)
@@ -625,7 +625,7 @@ def image_dimensions(request, image_id, conn=None, **kwargs):
 def image_rois(request, image_id, conn=None, **kwargs):
     """ Simply shows a page of ROI thumbnails for the specified image """
     roi_service = conn.getRoiService()
-    result = roi_service.findByImage(long(image_id), None, conn.SERVICE_OPTS)
+    result = roi_service.findByImage(int(image_id), None, conn.SERVICE_OPTS)
     roi_ids = [r.getId().getValue() for r in result.rois]
     return render(request, 'webtest/demo_viewers/image_rois.html',
                   {'roiIds': roi_ids})
@@ -653,7 +653,7 @@ def image_viewer(request, iid=None, conn=None, **kwargs):
     Delegates to webgateway, using share connection if appropriate """
 
     if iid is None:
-        iid = request.REQUEST.get('image')
+        iid = request.GET.get('image')
 
     template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
 
@@ -687,13 +687,13 @@ def render_performance(request, obj_type, id, conn=None, **kwargs):
             max_tiles = 50
             tile_list = []
             tile_w, tile_h = image._re.getTileSize()
-            cols = image.getSizeX() / tile_w
-            rows = image.getSizeY() / tile_h
+            cols = image.getSizeX() // tile_w
+            rows = image.getSizeY() // tile_h
             tile_list = [{'col': c, 'row': r}
                          for r in range(rows) for c in range(cols)]
             if (len(tile_list) > 2*max_tiles):
                 # start in middle of list (looks nicer!)
-                tile_list = tile_list[(len(tile_list)/2):]
+                tile_list = tile_list[(len(tile_list)//2):]
             tile_list = tile_list[:max_tiles]
             context = {'tileList': tile_list, 'imageId': id}
         # A regular Image
