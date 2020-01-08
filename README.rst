@@ -13,7 +13,7 @@ This was removed from the main OMERO.web in the 5.0.6 release of OMERO.
 Requirements
 ============
 
-* OMERO.web 5.2.6 or newer.
+* OMERO.web 5.6 or newer.
 
 Installing from PyPI
 ====================
@@ -30,21 +30,16 @@ Add webtest custom app to your installed web apps:
 
 ::
 
-    $ bin/omero config append omero.web.apps '"omero_webtest"'
+    $ omero config append omero.web.apps '"omero_webtest"'
 
 Optional: install example webclient plugins:
 
 ::
 
-    $ bin/omero config append omero.web.ui.right_plugins '["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"]'
-    $ bin/omero config append omero.web.ui.center_plugins '["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"]'
+    $ omero config append omero.web.ui.right_plugins '["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"]'
+    $ omero config append omero.web.ui.center_plugins '["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"]'
 
 Now restart OMERO.web as normal.
-
-**Warning**:
-
-OMERO.webtest version 0.2.x requires OMERO.web **5.2.6 or newer**.
-This is due to Django Framework compatibility and to a required package reorganization in OMERO.webtest in version 0.2.0 so the application can be distributed from Python Package Index `PyPI <https://pypi.org>`_.
 
 
 Examples
@@ -71,4 +66,4 @@ OMERO.webtest is released under the AGPL.
 Copyright
 ---------
 
-2016-2017, The Open Microscopy Environment
+2016-2020, The Open Microscopy Environment
