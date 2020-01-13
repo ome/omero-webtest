@@ -65,7 +65,7 @@ setup(name="omero-webtest",
       url="https://github.com/ome/omero-webtest",
       download_url='https://github.com/ome/omero-webtest/archive/v%s.tar.gz' % VERSION,  # NOQA
       keywords=['OMERO.web', 'plugin'],
-      install_requires=['omero-web>=5.6.dev7'],
+      install_requires=['omero-web>=5.6.0'],
       python_requires='>=3',
       include_package_data=True,
       zip_safe=False,
