@@ -32,7 +32,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-VERSION = '0.4.dev2'
+VERSION = '0.4.0.dev2'
 
 
 setup(name="omero-webtest",
