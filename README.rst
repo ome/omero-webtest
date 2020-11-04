@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/ome/omero-webtest.svg?branch=master
-    :target: https://travis-ci.org/ome/omero-webtest
+.. image:: https://github.com/ome/omero-webtest/workflows/OMERO/badge.svg
+    :target: https://github.com/ome/omero-webtest/actions
 
 .. image:: https://badge.fury.io/py/omero-webtest.svg
     :target: https://badge.fury.io/py/omero-webtest
