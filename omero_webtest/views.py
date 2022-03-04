@@ -3,7 +3,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import generic
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from omeroweb.webgateway import views as webgateway_views
 
