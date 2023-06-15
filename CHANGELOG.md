@@ -1,3 +1,8 @@
+0.4.2 (June 2023)
+-----------------
+
+- Make app compatible with Django 4.0.x [#35](https://github.com/ome/omero-webtest/pull/35)
+
 0.4.1 (March 2022)
 ------------------
 
